@@ -5,7 +5,7 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="dashboard-title">Dashboard</h2>
-                    <p class="dashboard-subtitle">websaaz solutions | 2025 Billing System</p>
+                    <p class="dashboard-subtitle">websaaz solutions | <?php echo date('Y'); ?> Billing System</p>
                 </div>
                 <div class="col-auto">
                     <span class="current-time" id="current-time"></span>

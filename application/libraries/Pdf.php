@@ -19,7 +19,11 @@ class Pdf {
 
     public function load($param = []) {
         $this->param = $param;
-        $this->pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+        
+        // Set page format - default A5 for bills, but allow override
+        $page_format = isset($param['page_format']) ? $param['page_format'] : 'A5';
+        
+        $this->pdf = new \TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, $page_format, true, 'UTF-8', false);
         
         // Set document information
         $this->pdf->SetCreator('Billing System');
@@ -30,11 +34,12 @@ class Pdf {
         $this->pdf->setPrintHeader(false);
         $this->pdf->setPrintFooter(false);
         
-        // Set margins
-        $this->pdf->SetMargins(15, 15, 15);
+        // Set margins (reduced for A5)
+        $margins = isset($param['margins']) ? $param['margins'] : [10, 10, 10];
+        $this->pdf->SetMargins($margins[0], $margins[1], $margins[2]);
         
         // Set auto page breaks
-        $this->pdf->SetAutoPageBreak(TRUE, 15);
+        $this->pdf->SetAutoPageBreak(TRUE, 10);
         
         // Set image scale factor
         $this->pdf->setImageScale(1.25);

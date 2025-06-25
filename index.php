@@ -57,6 +57,16 @@
 
 /*
  *---------------------------------------------------------------
+ * SET TIMEZONE FOR PAKISTAN
+ *---------------------------------------------------------------
+ *
+ * Set the default timezone to Pakistan Standard Time (PST)
+ * This ensures all date/time functions use Pakistan timezone
+ */
+	date_default_timezone_set('Asia/Karachi');
+
+/*
+ *---------------------------------------------------------------
  * ERROR REPORTING
  *---------------------------------------------------------------
  *

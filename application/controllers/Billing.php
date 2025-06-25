@@ -212,9 +212,11 @@ class Billing extends CI_Controller {
         // Generate PDF content
         $html = $this->load->view('billing/pdf_template', $data, true);
         
-        // Set PDF parameters
+        // Set PDF parameters for A5 size with smaller margins
         $param = [
-            'title' => 'Bill #' . $data['bill']->bill_number
+            'title' => 'Bill #' . $data['bill']->bill_number,
+            'page_format' => 'A5',
+            'margins' => [8, 8, 8]  // smaller margins for A5
         ];
         
         // Generate PDF
@@ -492,9 +494,11 @@ class Billing extends CI_Controller {
         // Generate PDF content
         $html = $this->load->view('billing/export_template', $data, true);
         
-        // Set PDF parameters
+        // Set PDF parameters - keeping A4 for export reports as they have more data
         $param = [
-            'title' => 'Bills Export Report - ' . date('d M Y')
+            'title' => 'Bills Export Report - ' . date('d M Y'),
+            'page_format' => 'A4',  // A4 for export reports
+            'margins' => [15, 15, 15]
         ];
         
         // Generate PDF

@@ -57,7 +57,30 @@
                     </div>
                     <div class="info-row">
                         <span class="label">Items Count:</span>
-                        <span class="value"><?php echo count($bill->items); ?> items</span>
+                        <span class="value">
+                            <?php 
+                            // Group items for count
+                            $grouped_for_count = array();
+                            foreach ($bill->items as $item) {
+                                $key = $item->title . '_' . $item->unit_price;
+                                $grouped_for_count[$key] = true;
+                            }
+                            echo count($grouped_for_count); 
+                            ?> items
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="label">Total Quantity:</span>
+                        <span class="value text-info fw-bold">
+                            <?php 
+                            // Calculate total quantity
+                            $total_qty = 0;
+                            foreach ($bill->items as $item) {
+                                $total_qty += $item->quantity;
+                            }
+                            echo $total_qty; 
+                            ?> pieces
+                        </span>
                     </div>
                     <div class="info-row">
                         <span class="label">Total Amount:</span>
@@ -137,29 +160,64 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $counter = 1; ?>
-                                <?php foreach ($bill->items as $item): ?>
+                                <?php 
+                                $counter = 1; 
+                                
+                                // Group items by title and unit_price
+                                $grouped_items = array();
+                                foreach ($bill->items as $item) {
+                                    $key = $item->title . '_' . $item->unit_price;
+                                    if (!isset($grouped_items[$key])) {
+                                        $grouped_items[$key] = array(
+                                            'title' => $item->title,
+                                            'sku' => $item->sku ?? '',
+                                            'unit_price' => $item->unit_price,
+                                            'quantity' => 0,
+                                            'total_price' => 0
+                                        );
+                                    }
+                                    $grouped_items[$key]['quantity'] += $item->quantity;
+                                    $grouped_items[$key]['total_price'] += $item->total_price;
+                                }
+                                ?>
+                                <?php foreach ($grouped_items as $item): ?>
                                 <tr>
                                     <td class="text-center"><?php echo $counter++; ?></td>
                                     <td>
                                         <div class="item-info">
-                                            <strong><?php echo $item->title; ?></strong>
-                                            <?php if (!empty($item->sku)): ?>
-                                                <br><small class="text-muted">SKU: <?php echo $item->sku; ?></small>
+                                            <strong><?php echo $item['title']; ?></strong>
+                                            <?php if (!empty($item['sku'])): ?>
+                                                <br><small class="text-muted">SKU: <?php echo $item['sku']; ?></small>
                                             <?php endif; ?>
                                         </div>
                                     </td>
                                     <td class="text-center">
-                                        <span class="badge bg-light text-dark"><?php echo $item->quantity; ?></span>
+                                        <span class="badge bg-light text-dark"><?php echo $item['quantity']; ?></span>
                                     </td>
-                                    <td class="text-end"><?php echo $settings['currency_symbol'] . ' ' . number_format($item->unit_price, 2); ?></td>
-                                    <td class="text-end"><strong><?php echo $settings['currency_symbol'] . ' ' . number_format($item->total_price, 2); ?></strong></td>
+                                    <td class="text-end"><?php echo $settings['currency_symbol'] . ' ' . number_format($item['unit_price'], 2); ?></td>
+                                    <td class="text-end"><strong><?php echo $settings['currency_symbol'] . ' ' . number_format($item['total_price'], 2); ?></strong></td>
                                 </tr>
                                 <?php endforeach; ?>
                             </tbody>
                             <tfoot class="table-dark">
+                                <?php 
+                                // Calculate total quantity
+                                $total_quantity = 0;
+                                foreach ($grouped_items as $item) {
+                                    $total_quantity += $item['quantity'];
+                                }
+                                ?>
                                 <tr>
-                                    <td colspan="4" class="text-end text-white"><strong>Grand Total:</strong></td>
+                                    <td colspan="2" class="text-end text-white"><strong>Total Quantity:</strong></td>
+                                    <td class="text-center">
+                                        <span class="badge bg-warning text-dark fs-6">
+                                            <?php echo $total_quantity; ?> items
+                                        </span>
+                                    </td>
+                                    <td colspan="2" class="text-end text-white"><strong>Grand Total:</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end text-white"><strong>Amount Total:</strong></td>
                                     <td class="text-end">
                                         <h5 class="mb-0 text-warning">
                                             <?php echo $settings['currency_symbol'] . ' ' . number_format($bill->total_amount, 2); ?>
