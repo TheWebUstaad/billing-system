@@ -5,36 +5,51 @@
     <style>
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
-            margin: 0;
-            padding: 10px;
+            /* margin: 0; */
+            /* padding: 10px; */
             color: #333;
             font-size: 9px;
-            line-height: 1.3;
+            /* line-height: 1.3; */
+            width: 100%;
         }
         .business-header {
-            text-align: center;
             margin-bottom: 15px;
-            padding: 8px 10px;
+            /* padding: 8px 10px; */
             border-bottom: 2px solid #333;
+            text-align: center;
+        }
+        .business-logo {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
         }
         .business-name {
-            font-size: 14px;
+            font-size: 10px;
             font-weight: bold;
-            margin-bottom: 4px;
+            /* margin-bottom: 4px; */
+            text-align: center;
         }
         .business-info {
             font-size: 8px;
             color: #666;
             padding-top: 2px;
         }
+        .half-wrapper {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
         .customer-info {
-            margin-bottom: 15px;
             font-size: 8px;
-            border: 1px solid #333;
+            /* border: 1px solid #333; */
             background-color: #f9f9f9;
+            width: 80%;
+            box-sizing: border-box;
+
         }
         .customer-info-table {
-            width: 100%;
+           
             font-size: 8px;
             border-collapse: separate;
             border-spacing: 0;
@@ -54,6 +69,8 @@
             border: 1px solid #333;
             font-size: 8px;
             margin-bottom: 15px;
+            box-sizing: border-box;
+            padding: 5px;
         }
         .items-table th {
             background-color: #333;
@@ -67,10 +84,27 @@
             padding: 5px 8px;
             border: 1px solid #333;
             text-align: center;
+            font-size: 12px;
         }
         .text-left { text-align: left !important; }
         .text-right { text-align: right !important; }
         .text-center { text-align: center !important; }
+        .text-serial { text-align: center !important;
+        width: 6%;
+        }
+        .text-title { 
+            text-align: left !important;
+            width: 50%;
+        }
+        .text-quantity { text-align: center !important;
+        width: 10%;
+        }
+        .text-price { text-align: center !important;
+        width: 10%;
+        }
+        .text-totla { text-align: center !important;
+        width: 10%;
+        }
         .footer {
             text-align: center;
             margin-top: 15px;
@@ -83,7 +117,14 @@
 </head>
 <body>
     <div class="business-header">
-        <div class="business-name"><?php echo $settings['shop_name'] ?? 'SHOP NAME'; ?></div>
+        <div class="business-logo">
+            <?php if (!empty($settings['logo'])): ?>
+                <img src="<?php echo base_url('uploads/logos/' . $settings['logo']); ?>" alt="Shop Logo" style="height:50px; width:50px; display:block; margin-left:auto; margin-right:auto;">
+            <?php endif; ?>
+        </div>
+        <div class="business-name">
+            <?php echo !empty($settings['shop_name']) ? $settings['shop_name'] : 'Shop Name'; ?>
+        </div>
         <div class="business-info">
             <?php 
             $info = array();
@@ -94,72 +135,68 @@
         </div>
     </div>
 
+    <div class="half-wrapper">
     <div class="customer-info">
         <table class="customer-info-table" cellpadding="4" cellspacing="2" style="margin: 4px;">
             <tr>
-                <td style="padding: 3px 6px;"><span class="info-label">Customer:</span> <?php echo !empty($bill->customer_name) ? $bill->customer_name : 'Walk-in'; ?></td>
-                <td style="padding: 3px 6px;"><span class="info-label">Ph:</span> <?php echo !empty($bill->customer_phone) ? $bill->customer_phone : '-'; ?></td>
+                <td style="padding: 3px 6px;font-size: 10px; font-weight: bold;"><span class="info-label"></span> <?php echo !empty($bill->customer_name) ? $bill->customer_name : 'Walk-in'; ?></td>
+                <td style="padding: 3px 6px;"><span class="info-label"></span> <?php echo !empty($bill->customer_phone) ? $bill->customer_phone : '-'; ?></td>
             </tr>
             <tr>
-                <td style="padding: 3px 6px;"><span class="info-label">Bill:</span> <?php echo $bill->bill_number; ?></td>
-                <td style="padding: 3px 6px;"><span class="info-label">Date:</span> <?php echo date('d-M-y h:i A', strtotime($bill->created_at)); ?></td>
+                <td style="padding: 3px 6px;"><span class="info-label"></span> <?php echo $bill->bill_number; ?></td>
+                <td style="padding: 3px 6px;"><span class="info-label"></span> <?php echo date('d-M-y h:i A', strtotime($bill->created_at)); ?></td>
             </tr>
         </table>
     </div>
 
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th style="width: 6%;">No</th>
-                <th style="width: 40%;">Item</th>
-                <th style="width: 10%;">Qty</th>
-                <th style="width: 30%;">Price</th>
-                <th style="width: 14%;">amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php 
-            $counter = 1; 
-            $total_qty = 0;
-            
-            // Group items by title and unit_price
-            $grouped_items = array();
-            foreach ($bill->items as $item) {
-                $key = $item->title . '_' . $item->unit_price;
-                if (!isset($grouped_items[$key])) {
-                    $grouped_items[$key] = array(
-                        'title' => $item->title,
-                        'unit_price' => $item->unit_price,
-                        'quantity' => 0,
-                        'total_price' => 0
-                    );
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 6%;">No</th>
+                    <th style="width: 50%;">Item</th>
+                    <th style="width: 10%;">Qty</th>
+                    <th style="width: 10%;">Price</th>
+                    <th style="width: 20%;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php 
+                $counter = 1; 
+                $total_qty = 0;
+                $grouped_items = array();
+                foreach ($bill->items as $item) {
+                    $key = $item->title . '_' . $item->unit_price;
+                    if (!isset($grouped_items[$key])) {
+                        $grouped_items[$key] = array(
+                            'title' => $item->title,
+                            'unit_price' => $item->unit_price,
+                            'quantity' => 0,
+                            'total_price' => 0
+                        );
+                    }
+                    $grouped_items[$key]['quantity'] += $item->quantity;
+                    $grouped_items[$key]['total_price'] += $item->total_price;
+                    $total_qty += $item->quantity;
                 }
-                $grouped_items[$key]['quantity'] += $item->quantity;
-                $grouped_items[$key]['total_price'] += $item->total_price;
-                $total_qty += $item->quantity;
-            }
-            ?>
-            <?php foreach ($grouped_items as $item): ?>
-            <tr>
-                <td class="text-center"><?php echo $counter++; ?></td>
-                <td class="text-left"><?php echo $item['title']; ?></td>
-                <td class="text-center"><?php echo $item['quantity']; ?></td>
-                <td class="text-right"><?php echo number_format($item['unit_price'], 0); ?></td>
-                <td class="text-right"><?php echo number_format($item['total_price'], 0); ?></td>
-            </tr>
-            <?php endforeach; ?>
+                ?>
+                <?php foreach ($grouped_items as $item): ?>
+                <tr>
+                    <td class="text-serial"><?php echo $counter++; ?></td>
+                    <td class="text-title"><?php echo $item['title']; ?></td>
+                    <td class="text-quantity"><?php echo $item['quantity']; ?></td>
+                    <td class="text-price"><?php echo number_format($item['unit_price'], 0); ?></td>
+                    <td class="text-total"><?php echo number_format($item['total_price'], 0); ?></td>
+                </tr>
+                <?php endforeach; ?>
 
-            <tr style="background-color: #f5f5f5;">
-                <td colspan="2" style="font-weight: bold;">Total</td>
-                <td class="text-center" style="font-weight: bold;"><?php echo $total_qty; ?></td>
-                <td></td>
-                <td class="text-right" style="font-weight: bold;"><?php echo $settings['currency_symbol'] ?? 'PKR'; ?> <?php echo number_format($bill->total_amount, 0); ?></td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="footer">
-        Thank you for your business!
+                <tr style="background-color: #f5f5f5;">
+                    <td colspan="2" style="font-weight: bold;">Total</td>
+                    <td class="text-center" style="font-weight: bold;"><?php echo $total_qty; ?></td>
+                    <td></td>
+                    <td class="text-right" style="font-weight: bold;"><?php echo $settings['currency_symbol'] ?? 'PKR'; ?> <?php echo number_format($bill->total_amount, 0); ?></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </body>
 </html>

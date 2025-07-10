@@ -6,7 +6,7 @@
                     <h5 class="card-title mb-0">Shop Settings</h5>
                 </div>
                 <div class="card-body">
-                    <?php echo form_open('settings', ['class' => 'needs-validation', 'novalidate' => true]); ?>
+                    <?php echo form_open_multipart('settings', ['class' => 'needs-validation', 'novalidate' => true]); ?>
                         <div class="mb-3">
                             <label for="shop_name" class="form-label">Shop Name *</label>
                             <input type="text" class="form-control" id="shop_name" name="shop_name" required
@@ -65,7 +65,17 @@
                             <div class="form-text">This text will appear at the bottom of bills</div>
                             <?php echo form_error('footer_text', '<div class="text-danger">', '</div>'); ?>
                         </div>
-
+                        <div class="mb-3">
+                            <label for="logo" class="form-label">Shop Logo</label>
+                            <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                            <div class="form-text">Upload your shop logo (optional, PNG/JPG, max 2MB)</div>
+                            <?php if (isset($settings['logo']) && $settings['logo']): ?>
+                                <div class="mt-2">
+                                    <img src="<?php echo base_url('uploads/logos/' . $settings['logo']); ?>" alt="Shop Logo" style="max-height: 80px;">
+                                </div>
+                            <?php endif; ?>
+                            <?php echo form_error('logo', '<div class="text-danger">', '</div>'); ?>
+                        </div>
                         <button type="submit" class="btn btn-primary">
                             <i class="fa fa-save"></i> Save Settings
                         </button>

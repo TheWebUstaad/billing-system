@@ -24,7 +24,8 @@ class Settings_model extends CI_Model {
             'email' => '',
             'currency_symbol' => 'PKR',
             // 'footer_text' => 'Thank you for your business!',
-            'low_stock_alert' => '10'
+            'low_stock_alert' => '10',
+            'shop_logo' => ''
         );
         
         foreach ($defaults as $key => $value) {
@@ -37,6 +38,11 @@ class Settings_model extends CI_Model {
     }
 
     public function update_settings($data) {
+        // Ensure 'shop_logo' key is always present in $data
+        if (!array_key_exists('shop_logo', $data)) {
+            $data['shop_logo'] = '';
+        }
+
         $this->db->trans_start();
         
         foreach ($data as $key => $value) {
