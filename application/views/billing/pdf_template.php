@@ -198,5 +198,8 @@
             </tbody>
         </table>
     </div>
+    <div class="footer">
+     power by websaaz solutions
+    </div>
 </body>
 </html>
