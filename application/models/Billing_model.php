@@ -296,11 +296,24 @@ class Billing_model extends CI_Model {
         $this->db->order_by('id', 'DESC');
         $this->db->limit(1);
         $result = $this->db->get('bills')->row();
-        
+
         if ($result) {
             // Extract number from BILL-20250624-001 format
             $parts = explode('-', $result->bill_number);
             return isset($parts[2]) ? (int)$parts[2] : 0;
+        }
+        return 0;
+    }
+
+    public function get_last_bill_number_global() {
+        $this->db->select('bill_number');
+        $this->db->order_by('id', 'DESC');
+        $this->db->limit(1);
+        $result = $this->db->get('bills')->row();
+
+        if ($result) {
+            // Extract number from 0001, 0002, etc. format
+            return (int)$result->bill_number;
         }
         return 0;
     }

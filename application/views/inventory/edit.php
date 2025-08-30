@@ -1,42 +1,44 @@
-<!-- Professional Edit Item Page -->
+<!-- Simple Edit Item Page -->
 <div class="container-fluid">
-    <!-- Page Header -->
+    <!-- Simple Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="mb-1">Edit Item</h2>
-            <p class="text-muted mb-0">Update item details for <strong><?php echo $item->title; ?></strong></p>
+            <p class="text-muted mb-0">Update details for <strong><?php echo $item->title; ?></strong></p>
         </div>
         <a href="<?php echo site_url('inventory'); ?>" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>Back to Inventory
         </a>
     </div>
 
-    <!-- Edit Item Form -->
+    <!-- Simple Edit Item Form -->
     <div class="row">
         <div class="col-lg-8">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Item Details</h5>
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Item</h5>
                 </div>
                 <div class="card-body">
                     <?php echo form_open('inventory/edit/'.$item->id, ['class' => 'needs-validation', 'novalidate' => true]); ?>
-                        
+
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label for="sku" class="form-label">
-                                    <i class="fas fa-barcode me-1"></i>SKU (Cannot be changed)
+                                    <i class="fas fa-barcode me-1"></i>SKU (Read-only)
                                 </label>
-                                <input type="text" class="form-control form-control-lg" 
-                                       id="sku" name="sku" value="<?php echo set_value('sku', $item->sku); ?>" 
+                                <input type="text" class="form-control form-control-lg"
+                                       id="sku" name="sku" value="<?php echo set_value('sku', $item->sku); ?>"
                                        readonly style="background-color: #f8f9fa;">
-                                <div class="form-text">SKU cannot be modified after creation</div>
+                                <div class="form-text">
+                                    <i class="fas fa-lock text-muted me-1"></i>SKU cannot be modified after creation
+                                </div>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <label for="title" class="form-label">
                                     <i class="fas fa-tag me-1"></i>Item Name*
                                 </label>
-                                <input type="text" class="form-control form-control-lg <?php echo form_error('title') ? 'is-invalid' : ''; ?>" 
+                                <input type="text" class="form-control form-control-lg <?php echo form_error('title') ? 'is-invalid' : ''; ?>"
                                        id="title" name="title" value="<?php echo set_value('title', $item->title); ?>" required
                                        placeholder="Enter item name">
                                 <div class="form-text">Name of the product/item</div>
@@ -44,15 +46,13 @@
                             </div>
                         </div>
 
-
-
                         <div class="mb-4">
                             <label for="price" class="form-label">
                                 <i class="fas fa-money-bill me-1"></i>Selling Price*
                             </label>
                             <div class="input-group input-group-lg">
                                 <span class="input-group-text"><?php echo $settings['currency_symbol'] ?? '₹'; ?></span>
-                                <input type="number" step="0.01" class="form-control <?php echo form_error('price') ? 'is-invalid' : ''; ?>" 
+                                <input type="number" step="0.01" class="form-control <?php echo form_error('price') ? 'is-invalid' : ''; ?>"
                                        id="price" name="price" value="<?php echo set_value('price', $item->price); ?>" required
                                        placeholder="0.00">
                                 <?php echo form_error('price', '<div class="invalid-feedback">', '</div>'); ?>
@@ -68,11 +68,12 @@
                                 <i class="fas fa-times me-2"></i>Cancel
                             </a>
                         </div>
+
                     <?php echo form_close(); ?>
                 </div>
             </div>
         </div>
-        
+
         <div class="col-lg-4">
             <div class="card bg-light">
                 <div class="card-header">
@@ -83,19 +84,19 @@
                         <strong><i class="fas fa-calendar text-primary me-2"></i>Created:</strong>
                         <p class="small mb-0"><?php echo date('d M Y, h:i A', strtotime($item->created_at)); ?></p>
                     </div>
-                    
+
                     <?php if(isset($item->updated_at) && $item->updated_at): ?>
                     <div class="mb-3">
                         <strong><i class="fas fa-clock text-success me-2"></i>Last Updated:</strong>
                         <p class="small mb-0"><?php echo date('d M Y, h:i A', strtotime($item->updated_at)); ?></p>
                     </div>
                     <?php endif; ?>
-                    
+
                     <div class="alert alert-info">
                         <i class="fas fa-lightbulb me-2"></i>
                         <strong>No Stock Tracking:</strong> This item will be automatically available during billing without stock limits.
                     </div>
-                    
+
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <strong>Note:</strong> Changes will be reflected immediately in all billing processes.
@@ -104,7 +105,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <style>
 .form-control-lg {
@@ -160,7 +160,7 @@ $(document).ready(function() {
             $(this).val(value.toFixed(2));
         }
     });
-    
+
     // Form validation
     (function() {
         'use strict';
@@ -175,8 +175,8 @@ $(document).ready(function() {
             }, false);
         });
     })();
-    
-    // Focus on SKU field
-    $('#sku').focus().select();
+
+    // Focus on title field
+    $('#title').focus().select();
 });
-</script> 
+</script>

@@ -140,11 +140,8 @@
         <table class="customer-info-table" cellpadding="4" cellspacing="2" style="margin: 4px;">
             <tr>
                 <td style="padding: 3px 6px;font-size: 10px; font-weight: bold;"><span class="info-label"></span> <?php echo !empty($bill->customer_name) ? $bill->customer_name : 'Walk-in'; ?></td>
-                <td style="padding: 3px 6px;"><span class="info-label"></span> <?php echo !empty($bill->customer_phone) ? $bill->customer_phone : '-'; ?></td>
-            </tr>
-            <tr>
-                <td style="padding: 3px 6px;"><span class="info-label"></span> <?php echo $bill->bill_number; ?></td>
-                <td style="padding: 3px 6px;"><span class="info-label"></span> <?php echo date('d-M-y h:i A', strtotime($bill->created_at)); ?></td>
+                <td style="padding: 3px 6px;font-size: 10px; font-weight: bold;"><span class="info-label"></span> <?php echo date('d-M-y h:i A', strtotime($bill->created_at)); ?></td>
+                <td style="padding: 3px 6px;font-size: 10px; font-weight: bold;"><span class="info-label"></span> Bill No:<?php echo $bill->bill_number; ?></td>
             </tr>
         </table>
     </div>
@@ -184,8 +181,8 @@
                     <td class="text-serial"><?php echo $counter++; ?></td>
                     <td class="text-title"><?php echo $item['title']; ?></td>
                     <td class="text-quantity"><?php echo $item['quantity']; ?></td>
-                    <td class="text-price"><?php echo number_format($item['unit_price'], 0); ?></td>
-                    <td class="text-total"><?php echo number_format($item['total_price'], 0); ?></td>
+                    <td class="text-price"><?php echo number_format($item['unit_price'], 2); ?></td>
+                    <td class="text-total"><?php echo number_format($item['total_price'], 2); ?></td>
                 </tr>
                 <?php endforeach; ?>
 
@@ -193,7 +190,7 @@
                     <td colspan="2" style="font-weight: bold;">Total</td>
                     <td class="text-center" style="font-weight: bold;"><?php echo $total_qty; ?></td>
                     <td></td>
-                    <td class="text-right" style="font-weight: bold;"><?php echo $settings['currency_symbol'] ?? 'PKR'; ?> <?php echo number_format($bill->total_amount, 0); ?></td>
+                    <td class="text-right" style="font-weight: bold;"><?php echo $settings['currency_symbol'] ?? 'PKR'; ?> <?php echo number_format($bill->total_amount, 2); ?></td>
                 </tr>
             </tbody>
         </table>

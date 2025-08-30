@@ -74,7 +74,6 @@ class Billing extends CI_Controller {
     public function store() {
         // Validate form
         $this->form_validation->set_rules('customer_name', 'Customer Name', 'trim|required');
-        $this->form_validation->set_rules('customer_phone', 'Phone Number', 'trim|required');
         $this->form_validation->set_rules('item_name[]', 'Items', 'required');
         $this->form_validation->set_rules('quantity[]', 'Quantities', 'required|numeric|greater_than[0]');
         $this->form_validation->set_rules('unit_price[]', 'Unit Prices', 'required|numeric|greater_than[0]');
@@ -91,7 +90,7 @@ class Billing extends CI_Controller {
         if (!$customer) {
             $customer_data = array(
                 'name' => $this->input->post('customer_name'),
-                'phone' => $customer_phone
+               
             );
             $customer_id = $this->customer_model->add_customer($customer_data);
         } else {
@@ -102,11 +101,10 @@ class Billing extends CI_Controller {
             }
         }
 
-        // Generate sequential bill number
-        $today = date('Ymd');
-        $last_bill = $this->billing_model->get_last_bill_number($today);
-        $next_number = $last_bill ? ($last_bill + 1) : 1;
-        $bill_number = 'BILL-' . $today . '-' . sprintf('%03d', $next_number);
+        // Generate sequential bill number (auto increment)
+        $last_bill_number = $this->billing_model->get_last_bill_number_global();
+        $next_number = $last_bill_number ? ($last_bill_number + 1) : 1;
+        $bill_number = sprintf('%04d', $next_number);
 
         // Get form data (simplified - no payment tracking)
         $bill_data = array(

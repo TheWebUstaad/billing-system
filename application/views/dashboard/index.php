@@ -17,7 +17,7 @@
     <div class="container-fluid">
         <!-- Key Stats -->
         <div class="row mb-4">
-            <div class="col-md-6 mb-3">
+            <div class="col-12 col-md-6 mb-3">
                 <div class="stat-card primary">
                     <div class="stat-icon">
                         <i class="fas fa-file-invoice"></i>
@@ -29,7 +29,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-12 col-md-6 mb-3">
                 <div class="stat-card success">
                     <div class="stat-icon">
                         <i class="fas fa-calendar-day"></i>
@@ -287,22 +287,115 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
+    .dashboard-page {
+        padding: 10px 0;
+    }
+
+    .dashboard-header {
+        padding: 20px 0;
+        margin-bottom: 20px;
+    }
+
     .dashboard-title {
-        font-size: 2rem;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
     }
-    
+
+    .dashboard-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .current-time {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+
+    .stat-card {
+        padding: 20px;
+        margin-bottom: 1rem;
+        height: auto;
+        min-height: 100px;
+    }
+
     .stat-value {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
-    
+
+    .stat-label {
+        font-size: 1rem;
+        margin: 5px 0 8px 0;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 15px;
+    }
+
+    .quick-actions-card {
+        padding: 20px;
+    }
+
+    .quick-actions-title {
+        font-size: 1.25rem;
+        margin-bottom: 20px;
+    }
+
     .quick-actions-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
+        gap: 12px;
+        max-width: none;
+        margin: 0 auto;
     }
-    
+
     .quick-action-item {
-        padding: 20px 10px;
+        padding: 15px 8px;
+        min-height: 80px;
+    }
+
+    .quick-action-icon {
+        width: 35px;
+        height: 35px;
+        margin-bottom: 8px;
+        font-size: 1rem;
+    }
+
+    .quick-action-text {
+        font-size: 0.85rem;
+        line-height: 1.2;
+    }
+
+    /* Touch-friendly buttons */
+    .btn {
+        min-height: 44px;
+        font-size: 1rem;
+    }
+
+    /* Better spacing */
+    .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+/* Tablet Styles */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .dashboard-title {
+        font-size: 2.2rem;
+    }
+
+    .stat-value {
+        font-size: 2.2rem;
+    }
+
+    .quick-actions-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+    }
+
+    .quick-action-item {
+        padding: 18px 12px;
     }
 }
 </style>

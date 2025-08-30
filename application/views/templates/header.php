@@ -73,6 +73,169 @@
             font-weight: bold;
             color: #2c3e50;
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                z-index: 1050;
+                transition: left 0.3s ease-in-out;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .mobile-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                z-index: 1040;
+                display: none;
+            }
+
+            .mobile-overlay.show {
+                display: block;
+            }
+
+            .navbar-toggler {
+                border: none;
+                padding: 0.5rem;
+            }
+
+            .navbar-toggler:focus {
+                box-shadow: none;
+            }
+
+            .shop-name {
+                font-size: 1rem;
+            }
+
+            .stat-card {
+                margin-bottom: 1rem;
+            }
+
+            .quick-action-item {
+                padding: 1rem !important;
+                margin-bottom: 0.5rem;
+            }
+
+            .btn {
+                min-height: 44px;
+                font-size: 1rem;
+            }
+
+            .form-control {
+                min-height: 44px;
+                font-size: 1rem;
+            }
+
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+
+            .table td, .table th {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 768px) and (max-width: 991.98px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+        }
+
+        /* RTL Support for Urdu */
+        @media (max-width: 767.98px) {
+            .rtl-text {
+                direction: rtl;
+                text-align: right;
+            }
+
+            .mobile-item-details .form-control {
+                text-align: right;
+            }
+
+            .suggestion-item {
+                text-align: right;
+            }
+
+            .navbar-toggler {
+                margin-left: auto;
+                margin-right: 0;
+            }
+
+            .dropdown-menu {
+                left: auto;
+                right: 0;
+            }
+        }
+
+        /* Additional Mobile Enhancements */
+        @media (max-width: 767.98px) {
+            /* Better form field spacing */
+            .form-group {
+                margin-bottom: 1rem;
+            }
+
+            /* Improved table readability */
+            .table-responsive .table {
+                font-size: 0.875rem;
+            }
+
+            /* Better modal experience on mobile */
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            .modal-content {
+                border-radius: 0.5rem;
+            }
+
+            /* Touch-friendly select elements */
+            .select2-container--default .select2-selection--single {
+                min-height: 44px !important;
+                padding: 0.375rem 0.75rem;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 32px;
+                font-size: 1rem;
+            }
+
+            /* Better spacing for alerts */
+            .alert {
+                margin-bottom: 1rem;
+                padding: 0.75rem 1rem;
+            }
+
+            /* Improved card spacing */
+            .card {
+                margin-bottom: 1rem;
+                border-radius: 0.5rem;
+            }
+
+            .card-body {
+                padding: 1.25rem;
+            }
+        }
         
         /* Toast Notification Styling */
         .toast-top-right {
@@ -120,19 +283,53 @@
         // Add CSRF token to all forms
         var csrf_token = '<?= $this->security->get_csrf_hash() ?>';
         var csrf_name = '<?= $this->security->get_csrf_token_name() ?>';
-        
+
         $('form').each(function() {
             if (!$(this).find('input[name="' + csrf_name + '"]').length) {
                 $(this).append('<input type="hidden" name="' + csrf_name + '" value="' + csrf_token + '">');
             }
         });
+
+        // Mobile Menu Toggle Functionality
+        $('#mobile-menu-toggle').on('click', function() {
+            $('#sidebar').toggleClass('show');
+            $('#mobile-overlay').toggleClass('show');
+            $('body').toggleClass('sidebar-open');
+        });
+
+        $('#mobile-overlay').on('click', function() {
+            $('#sidebar').removeClass('show');
+            $('#mobile-overlay').removeClass('show');
+            $('body').removeClass('sidebar-open');
+        });
+
+        // Close mobile menu when clicking on sidebar links
+        $('#sidebar .nav-link').on('click', function() {
+            if ($(window).width() < 768) {
+                $('#sidebar').removeClass('show');
+                $('#mobile-overlay').removeClass('show');
+                $('body').removeClass('sidebar-open');
+            }
+        });
+
+        // Close mobile menu on window resize if screen becomes larger
+        $(window).on('resize', function() {
+            if ($(window).width() >= 768) {
+                $('#sidebar').removeClass('show');
+                $('#mobile-overlay').removeClass('show');
+                $('body').removeClass('sidebar-open');
+            }
+        });
     });
     </script>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
 
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 px-0 sidebar">
+            <div class="col-md-3 col-lg-2 px-0 sidebar" id="sidebar">
                 <div class="text-center py-4">
                     <h4><?php echo $settings['shop_name']; ?></h4>
                 </div>
@@ -167,10 +364,15 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 px-0">
+            <div class="col-12 col-md-9 col-lg-10 px-0">
                 <!-- Top Navbar -->
                 <nav class="navbar navbar-expand-lg">
                     <div class="container-fluid">
+                        <!-- Mobile Menu Button -->
+                        <button class="navbar-toggler d-lg-none me-2" type="button" id="mobile-menu-toggle">
+                            <i class="fa fa-bars"></i>
+                        </button>
+
                         <span class="navbar-text shop-name">
                             <?php echo $settings['shop_name']; ?>
                         </span>
