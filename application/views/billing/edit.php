@@ -16,20 +16,24 @@
     
     <div class="row">
         <!-- Main Bill Form -->
-        <div class="col-md-8">
+        <div class="col-12 col-lg-8">
             <!-- Customer Info -->
             <div class="card mb-3">
                 <div class="card-body">
                     <h5 class="card-title">Customer Information</h5>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-12 position-relative">
                             <label class="form-label">Customer Name*</label>
-                            <input type="text" class="form-control" id="customer_name" name="customer_name" required 
+                            <input type="text" class="form-control" id="customer_name" name="customer_name" required
                                    value="<?php echo set_value('customer_name', $bill->customer_name); ?>">
+                            <div id="customer_list" class="list-group mt-1" style="display: none; position: absolute; z-index: 1000; width: 90%;"></div>
                         </div>
-                        <div class="col-md-6">
+                        </div>
+
+                    <div class="row mt-3">
+                        <div class="col-12">
                             <label class="form-label">Phone Number*</label>
-                            <input type="tel" class="form-control" id="customer_phone" name="customer_phone" required 
+                            <input type="tel" class="form-control" id="customer_phone" name="customer_phone" required
                                    value="<?php echo set_value('customer_phone', $bill->customer_phone); ?>">
                         </div>
                     </div>
@@ -37,76 +41,87 @@
             </div>
 
             <!-- Items Section -->
-            <div class="card">
+            <div class="card mb-3">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="card-title mb-0">Bill Items</h5>
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addItemRow()">
-                            <i class="fa fa-plus"></i> Add Item
+                        <button type="button" class="btn btn-success mobile-add-btn" onclick="addItemRow()">
+                            <i class="fa fa-plus"></i> <span class="d-none d-sm-inline">Add Item</span>
                         </button>
                     </div>
-                    
-                    <div class="table-responsive">
-                        <table class="table table-bordered" id="itemsTable">
+
+                    <!-- Desktop Table View -->
+                    <div class="table-responsive d-none d-md-block">
+                        <table class="table table-sm table-bordered">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="35%">Item Name</th>
+                                    <th width="45%">Item Name</th>
                                     <th width="15%">Quantity</th>
-                                    <th width="20%">Unit Price</th>
-                                    <th width="20%">Total</th>
-                                    <th width="10%">Action</th>
+                                    <th width="20%">Unit Price (<?php echo $settings['currency_symbol']; ?>)</th>
+                                    <th width="15%">Total (<?php echo $settings['currency_symbol']; ?>)</th>
+                                    <th width="5%">Action</th>
                                 </tr>
                             </thead>
-                            <tbody id="itemsTableBody">
+                            <tbody id="items_table_desktop">
                                 <?php if (!empty($bill->items)): ?>
                                     <?php foreach ($bill->items as $index => $item): ?>
-                                    <tr>
+                                    <tr class="item-row" data-index="<?php echo $index; ?>">
                                         <td>
-                                            <input type="text" class="form-control item-name" name="item_name[]" 
-                                                   value="<?php echo set_value('item_name[' . $index . ']', $item->title); ?>" 
-                                                   placeholder="Type item name..." autocomplete="off" required>
-                                            <div class="suggestion-list" style="display: none;"></div>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control form-control-sm item-search"
+                                                       name="item_name[]" value="<?php echo set_value('item_name[' . $index . ']', $item->title); ?>"
+                                                       placeholder="Type item name..." onfocus="openItemSearchModal(this)" readonly required>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+                                            </div>
+                                            <input type="hidden" class="item-id" name="item_id[]">
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control quantity" name="quantity[]" 
-                                                   value="<?php echo set_value('quantity[' . $index . ']', $item->quantity); ?>" 
-                                                   min="1" step="1" required>
+                                            <input type="number" class="form-control form-control-sm quantity"
+                                                   name="quantity[]" value="<?php echo set_value('quantity[' . $index . ']', $item->quantity); ?>"
+                                                   min="1" onchange="calculateRowTotal(this)" required>
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control unit-price" name="unit_price[]" 
-                                                   value="<?php echo set_value('unit_price[' . $index . ']', $item->unit_price); ?>" 
-                                                   min="0.01" step="0.01" required>
+                                            <input type="number" class="form-control form-control-sm unit-price"
+                                                   name="unit_price[]" value="<?php echo set_value('unit_price[' . $index . ']', $item->unit_price); ?>"
+                                                   step="0.01" min="0.01" placeholder="0.00" onchange="calculateRowTotal(this)" required>
                                         </td>
                                         <td>
-                                            <span class="item-total"><?php echo number_format($item->total_price, 2); ?></span>
+                                            <input type="text" class="form-control form-control-sm row-total" readonly placeholder="0.00">
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)" title="Remove Item">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <tr>
+                                    <tr class="item-row" data-index="0">
                                         <td>
-                                            <input type="text" class="form-control item-name" name="item_name[]" 
-                                                   placeholder="Type item name..." autocomplete="off" required>
-                                            <div class="suggestion-list" style="display: none;"></div>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control form-control-sm item-search"
+                                                       name="item_name[]" placeholder="Type item name..." onfocus="openItemSearchModal(this)" readonly required>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+                                            </div>
+                                            <input type="hidden" class="item-id" name="item_id[]">
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control quantity" name="quantity[]" 
-                                                   value="1" min="1" step="1" required>
+                                            <input type="number" class="form-control form-control-sm quantity"
+                                                   name="quantity[]" value="1" min="1" onchange="calculateRowTotal(this)" required>
                                         </td>
                                         <td>
-                                            <input type="number" class="form-control unit-price" name="unit_price[]" 
-                                                   min="0.01" step="0.01" required>
+                                            <input type="number" class="form-control form-control-sm unit-price"
+                                                   name="unit_price[]" step="0.01" min="0.01" placeholder="0.00" onchange="calculateRowTotal(this)" required>
                                         </td>
                                         <td>
-                                            <span class="item-total">0.00</span>
+                                            <input type="text" class="form-control form-control-sm row-total" readonly placeholder="0.00">
                                         </td>
                                         <td>
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)" title="Remove Item">
                                                 <i class="fa fa-trash"></i>
                                             </button>
                                         </td>
@@ -115,41 +130,138 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Mobile Card View -->
+                    <div id="items_container_mobile" class="d-md-none">
+                        <?php if (!empty($bill->items)): ?>
+                            <?php foreach ($bill->items as $index => $item): ?>
+                            <div class="mobile-item-card card mb-3 item-row" data-index="<?php echo $index; ?>" style="border-left: 4px solid #20c997">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title mb-0 text-primary">Item #<?php echo $index + 1; ?></h6>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMobileCard(this)">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Item Name *</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control item-search"
+                                                   name="item_name[]" value="<?php echo set_value('item_name[' . $index . ']', $item->title); ?>"
+                                                   placeholder="Type item name..." onfocus="openItemSearchModal(this)" readonly required>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
+                                                <i class="fa fa-search"></i>
+                                            </button>
+                                        </div>
+                                        <input type="hidden" class="item-id" name="item_id[]">
+                                    </div>
+
+                                    <div class="row g-2">
+                                        <div class="col-4">
+                                            <label class="form-label small fw-bold">Quantity *</label>
+                                            <input type="number" class="form-control quantity"
+                                                   name="quantity[]" value="<?php echo set_value('quantity[' . $index . ']', $item->quantity); ?>"
+                                                   min="1" onchange="calculateRowTotal(this)" required>
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label small fw-bold">Price *</label>
+                                            <input type="number" class="form-control unit-price"
+                                                   name="unit_price[]" value="<?php echo set_value('unit_price[' . $index . ']', $item->unit_price); ?>"
+                                                   step="0.01" min="0.01" placeholder="0.00" onchange="calculateRowTotal(this)" required>
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label small fw-bold">Total</label>
+                                            <input type="text" class="form-control row-total fw-bold text-success" readonly placeholder="0.00">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="mobile-item-card card mb-3 item-row" data-index="0" style="border-left: 4px solid #20c997">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="card-title mb-0 text-primary">Item #1</h6>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMobileCard(this)">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Item Name *</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control item-search"
+                                                   name="item_name[]" placeholder="Type item name..." onfocus="openItemSearchModal(this)" readonly required>
+                                            <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
+                                                <i class="fa fa-search"></i>
+                                            </button>
+                                        </div>
+                                        <input type="hidden" class="item-id" name="item_id[]">
+                                    </div>
+
+                                    <div class="row g-2">
+                                        <div class="col-4">
+                                            <label class="form-label small fw-bold">Quantity *</label>
+                                            <input type="number" class="form-control quantity"
+                                                   name="quantity[]" value="1" min="1" onchange="calculateRowTotal(this)" required>
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label small fw-bold">Price *</label>
+                                            <input type="number" class="form-control unit-price"
+                                                   name="unit_price[]" step="0.01" min="0.01" placeholder="0.00" onchange="calculateRowTotal(this)" required>
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label small fw-bold">Total</label>
+                                            <input type="text" class="form-control row-total fw-bold text-success" readonly placeholder="0.00">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- Add Item Button for Mobile -->
+                    <div class="text-center d-md-none mt-3">
+                        <button type="button" class="btn btn-success btn-lg w-100" onclick="addItemRow()">
+                            <i class="fa fa-plus-circle fa-lg"></i> Add New Item
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Bill Summary -->
-        <div class="col-md-4">
+        <div class="col-12 col-lg-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Bill Summary</h5>
-                    
+
                     <div class="summary-item">
                         <span>Bill Number:</span>
                         <strong><?php echo $bill->bill_number; ?></strong>
                     </div>
-                    
+
                     <div class="summary-item">
                         <span>Date:</span>
                         <strong><?php echo date('d M Y', strtotime($bill->created_at)); ?></strong>
                     </div>
-                    
+
                     <hr>
-                    
+
                     <div class="summary-item">
                         <span>Total Items:</span>
                         <span id="totalItems"><?php echo count($bill->items); ?></span>
                     </div>
-                    
+
                     <div class="summary-item total-amount">
                         <span>Grand Total:</span>
                         <strong id="grandTotal"><?php echo $settings['currency_symbol']; ?> <?php echo number_format($bill->total_amount, 2); ?></strong>
                     </div>
-                    
+
                     <hr>
-                    
-                    <button type="submit" class="btn btn-success w-100">
+
+                    <button type="submit" class="btn btn-success w-100 btn-lg">
                         <i class="fa fa-save"></i> Update Bill
                     </button>
                 </div>
@@ -158,9 +270,88 @@
     </div>
     
     <?php echo form_close(); ?>
+
+    <!-- Item Search Modal -->
+    <div class="modal fade" id="itemSearchModal" tabindex="-1" aria-labelledby="itemSearchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header  text-white" style="background-color: #20c997;">
+                    <h5 class="modal-title" id="itemSearchModalLabel">
+                        <i class="fa fa-search me-2"></i>Search Items
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <!-- Search Input -->
+                    <div class="p-3 border-bottom bg-light">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-search"></i></span>
+                            <input type="text" class="form-control" id="modalSearchInput" placeholder="Type item name, SKU or price...">
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearModalSearch()">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Items List -->
+                    <div id="modalItemsList" class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Items will be loaded here -->
+                        <div class="text-center p-4 text-muted">
+                            <i class="fa fa-search fa-2x mb-2"></i>
+                            <p>Type to search items</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa fa-times me-1"></i>Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
+/* Item Search Modal Styles */
+#itemSearchModal .modal-dialog {
+    max-width: 600px;
+}
+
+#itemSearchModal .list-group-item {
+    border-left: none;
+    border-right: none;
+    transition: all 0.2s ease;
+}
+
+#itemSearchModal .list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#itemSearchModal .item-modal-option {
+    cursor: pointer;
+    padding: 1rem;
+}
+
+#itemSearchModal .select-item-btn {
+    min-width: 80px;
+}
+
+#itemSearchModal .spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+.table-bordered td {
+    vertical-align: middle;
+}
+
+.item-row input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
 .summary-item {
     display: flex;
     justify-content: space-between;
@@ -174,147 +365,925 @@
     margin-top: 10px;
 }
 
-.suggestion-list {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-top: none;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 1000;
+/* Enhanced Mobile-specific styles */
+@media (max-width: 767.98px) {
+    /* Page Layout */
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    /* Header */
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch !important;
+    }
+
+    .d-flex.justify-content-between h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+    }
+
+    /* Customer Section */
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    /* Form Controls */
+    .form-control {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        border: 2px solid #e9ecef;
+        transition: border-color 0.15s ease-in-out;
+    }
+
+    .form-control:focus {
+        border-color: #20c997;
+        box-shadow: 0 0 0 0.2rem rgba(32, 201, 151, 0.15);
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #495057;
+    }
+
+    /* Mobile Item Cards */
+    .mobile-item-card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mobile-item-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .mobile-item-card .card-body {
+        padding: 1rem;
+    }
+
+    .mobile-item-card .card-title {
+        font-size: 1rem;
+        color: #20c997;
+        margin-bottom: 1rem;
+    }
+
+    /* Buttons */
+    .btn {
+        min-height: 48px;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+        margin-top: 1rem;
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-success:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        border: none;
+    }
+
+    .btn-outline-danger {
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        background: transparent;
+    }
+
+    .btn-outline-danger:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    /* Add Item Button */
+    .mobile-add-btn {
+        display: none;
+    }
+
+    /* Total Section */
+    .text-end {
+        text-align: center !important;
+    }
+
+    .text-end h4 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Sidebar */
+    .col-12.col-lg-4 {
+        order: -1;
+        margin-bottom: 2rem;
+    }
+
+    .col-12.col-lg-4 .card {
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Number inputs */
+    input[type="number"] {
+        -webkit-appearance: none;
+        -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Modal Enhancements for Mobile */
+    #itemSearchModal .modal-dialog {
+        margin: 1rem;
+        max-width: none;
+    }
+
+    #itemSearchModal .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    #itemSearchModal .modal-header {
+        border-radius: 12px 12px 0 0;
+        padding: 1rem 1.5rem;
+    }
+
+    #itemSearchModal .modal-body {
+        padding: 0;
+    }
+
+    #itemSearchModal .list-group-item {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin: 0.25rem 0.5rem;
+    }
+
+    /* Enhanced touch targets for mobile */
+    #itemSearchModal .select-item-btn {
+        min-height: 36px;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Fix positioning for customer suggestions on mobile */
+    #customer_list {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        z-index: 1050 !important;
+        background: white !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        max-height: 200px !important;
+        overflow-y: auto !important;
+    }
+
+    /* Mobile customer suggestion items */
+    .customer-suggestion-item {
+        min-height: 48px !important;
+        padding: 12px 16px !important;
+        font-size: 16px !important; /* Prevent zoom on iOS */
+        display: block !important;
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+    .customer-suggestion-item:hover {
+        background-color: #f8f9fa !important;
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+    /* Loading states */
+    .btn:disabled {
+        opacity: 0.6;
+    }
+
+    /* Focus states for accessibility */
+    .btn:focus,
+    .form-control:focus {
+        outline: none;
+    }
+
+    /* Spacing improvements */
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem !important;
+    }
+
+    /* Improve readability */
+    body {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
 }
 
-.suggestion-item {
-    padding: 8px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
+/* Extra small screens */
+@media (max-width: 575.98px) {
+    .container-fluid {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .mobile-item-card .card-body {
+        padding: 0.75rem;
+    }
+
+    .form-control {
+        font-size: 1rem;
+        padding: 0.625rem 0.875rem;
+    }
+
+    .btn {
+        min-height: 44px;
+        font-size: 0.95rem;
+    }
+
+    /* Smaller text on very small screens */
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+    }
+
+    /* Adjust mobile card spacing */
+    .mobile-item-card {
+        margin-bottom: 0.75rem;
+    }
 }
 
-.suggestion-item:hover {
-    background-color: #f8f9fa;
+/* Form validation styles */
+.form-control.is-valid {
+    border-color: #28a745;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73 4.89-4.89-1.42-1.42L1.89 5.3l-1.42-1.42L-.3 5.3z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
 </style>
 
 <script>
+let itemIndex = <?php echo count($bill->items); ?>;
+const currency = '<?php echo $settings['currency_symbol']; ?>';
+
+// Initialize on page load
 $(document).ready(function() {
-    updateBillSummary();
-    
-    // Real-time calculation
-    $(document).on('input', '.quantity, .unit-price', function() {
-        updateRowTotal($(this).closest('tr'));
-        updateBillSummary();
+    // Mobile-specific enhancements
+    if ($(window).width() < 768) {
+        // Improve mobile UX
+        $('.form-control').attr('inputmode', 'text');
+        $('#customer_phone').attr('inputmode', 'tel');
+
+        // Add visual feedback for form completion
+        $('.form-control').on('blur', function() {
+            if ($(this).val().trim()) {
+                $(this).addClass('is-valid');
+            } else {
+                $(this).removeClass('is-valid');
+            }
+        });
+    }
+
+    // Handle window resize for responsive behavior
+    $(window).on('resize', function() {
+        handleResponsiveLayout();
     });
+
+    handleResponsiveLayout();
+
+    // Initial calculation on page load
+    setTimeout(() => {
+        calculateGrandTotal();
+        updateSummary();
+    }, 200);
     
-    // Item search suggestions
-    $(document).on('input', '.item-name', function() {
-        let input = $(this);
-        let query = input.val();
-        
-        if (query.length > 2) {
-            $.get('<?php echo base_url('billing/search_items'); ?>', {q: query}, function(data) {
-                let suggestions = JSON.parse(data);
-                let html = '';
-                
-                suggestions.forEach(function(item) {
-                    html += `<div class="suggestion-item" data-title="${item.title}" data-price="${item.price}">
-                        <strong>${item.title}</strong> - ${item.sku} - Rs. ${item.price}
-                    </div>`;
-                });
-                
-                input.siblings('.suggestion-list').html(html).show();
-            });
-        } else {
-            input.siblings('.suggestion-list').hide();
-        }
-    });
-    
-    // Select suggestion
-    $(document).on('click', '.suggestion-item', function() {
-        let row = $(this).closest('tr');
-        let title = $(this).data('title');
-        let price = $(this).data('price');
-        
-        row.find('.item-name').val(title);
-        row.find('.unit-price').val(price);
-        $(this).parent().hide();
-        
-        updateRowTotal(row);
-        updateBillSummary();
-    });
-    
-    // Hide suggestions when clicking outside
-    $(document).on('click', function(e) {
-        if (!$(e.target).hasClass('item-name')) {
-            $('.suggestion-list').hide();
-        }
-    });
 });
 
+// Function to handle responsive layout changes
+function handleResponsiveLayout() {
+    if ($(window).width() >= 768) {
+        // Desktop: ensure desktop layout is active
+        $('.d-none.d-md-block').show();
+        $('#items_container_mobile').hide();
+    } else {
+        // Mobile: ensure mobile layout is active
+        $('.d-none.d-md-block').hide();
+        $('#items_container_mobile').show();
+    }
+}
+
+// Enhanced Customer Search
+let customerTimeout;
+$('#customer_name').on('input', function() {
+    clearTimeout(customerTimeout);
+    const query = $(this).val().trim();
+    console.log('Customer input:', query);
+
+    if (query.length >= 2) {
+        customerTimeout = setTimeout(() => {
+            searchCustomers(query);
+        }, 300);
+    } else {
+        $('#customer_list').hide();
+    }
+});
+
+function searchCustomers(query) {
+    console.log('Searching for customers:', query);
+    $.ajax({
+        url: '<?php echo base_url("billing/search_customers"); ?>',
+        type: 'GET',
+        data: { q: query },
+        dataType: 'json',
+        success: function(data) {
+            console.log('Customer search response:', data);
+            showCustomers(data);
+        },
+        error: function(xhr, status, error) {
+            console.log('Customer search error:', error, xhr.responseText);
+        }
+    });
+}
+
+function showCustomers(customers) {
+    console.log('Showing customers:', customers.length, 'results');
+    const list = $('#customer_list');
+    list.empty();
+
+    if (customers.length > 0) {
+        customers.forEach(customer => {
+            // Escape single quotes in customer data to prevent JavaScript errors
+            const escapedName = customer.name.replace(/'/g, "\\'");
+            const escapedPhone = (customer.phone || '').replace(/'/g, "\\'");
+
+            list.append(`
+                <a href="#" class="list-group-item list-group-item-action customer-suggestion-item"
+                   onclick="selectCustomer('${escapedName}', '${escapedPhone}')">
+                    <div class="d-flex justify-content-between">
+                        <strong>${customer.name}</strong>
+                        <small class="text-muted">${customer.phone || 'No phone'}</small>
+                    </div>
+                </a>
+            `);
+        });
+        console.log('Customer list should be visible now');
+        list.show();
+
+        // Mobile-specific enhancements
+        if ($(window).width() < 768) {
+            $('.customer-suggestion-item').css({
+                'min-height': '48px',
+                'padding': '12px 16px',
+                'font-size': '16px' // Prevent zoom on iOS
+            });
+        }
+    } else {
+        console.log('No customers found, hiding list');
+        list.hide();
+    }
+}
+
+function selectCustomer(name, phone) {
+    $('#customer_name').val(name);
+    $('#customer_phone').val(phone);
+    $('#customer_list').hide();
+
+    // Add visual feedback on mobile
+    if ($(window).width() < 768) {
+        $('#customer_name').addClass('is-valid');
+        if (phone) {
+            $('#customer_phone').addClass('is-valid');
+        }
+    }
+}
+
+// Enhanced Item Management for Desktop and Mobile
 function addItemRow() {
-    let newRow = `
-        <tr>
+    // Desktop Table Row
+    const desktopRow = `
+        <tr class="item-row" data-index="${itemIndex}">
             <td>
-                <input type="text" class="form-control item-name" name="item_name[]" 
-                       placeholder="Type item name..." autocomplete="off" required>
-                <div class="suggestion-list" style="display: none;"></div>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm item-search"
+                           name="item_name[]" placeholder="Type item name..."
+                           onfocus="openItemSearchModal(this)" readonly required>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+                <input type="hidden" class="item-id" name="item_id[]">
             </td>
             <td>
-                <input type="number" class="form-control quantity" name="quantity[]" 
-                       value="1" min="1" step="1" required>
+                <input type="number" class="form-control form-control-sm quantity"
+                       name="quantity[]" value="1" min="1" onchange="calculateRowTotal(this)" required>
             </td>
             <td>
-                <input type="number" class="form-control unit-price" name="unit_price[]" 
-                       min="0.01" step="0.01" required>
+                <input type="number" class="form-control form-control-sm unit-price"
+                       name="unit_price[]" step="0.01" min="0.01" placeholder="0.00"
+                       onchange="calculateRowTotal(this)" required>
             </td>
             <td>
-                <span class="item-total">0.00</span>
+                <input type="text" class="form-control form-control-sm row-total" readonly placeholder="0.00">
             </td>
             <td>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeItemRow(this)">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)" title="Remove Item">
                     <i class="fa fa-trash"></i>
                 </button>
             </td>
         </tr>
     `;
-    
-    $('#itemsTableBody').append(newRow);
-    updateBillSummary();
+
+    // Mobile Card Layout
+    const mobileCard = `
+        <div class="mobile-item-card card mb-3 item-row" data-index="${itemIndex}" style="border-left: 4px solid #20c997">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="card-title mb-0 text-primary">Item #${itemIndex + 1}</h6>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMobileCard(this)">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Item Name *</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control item-search"
+                               name="item_name[]" placeholder="Type item name..."
+                               onfocus="openItemSearchModal(this)" readonly required>
+                        <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" class="item-id" name="item_id[]">
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-4">
+                        <label class="form-label small fw-bold">Quantity *</label>
+                        <input type="number" class="form-control quantity"
+                               name="quantity[]" value="1" min="1" onchange="calculateRowTotal(this)" required>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small fw-bold">Price *</label>
+                        <input type="number" class="form-control unit-price"
+                               name="unit_price[]" step="0.01" min="0.01" placeholder="0.00"
+                               onchange="calculateRowTotal(this)" required>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small fw-bold">Total</label>
+                        <input type="text" class="form-control row-total fw-bold text-success" readonly placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add to appropriate container based on screen size
+    if ($(window).width() >= 768) {
+        $('#items_table_desktop').append(desktopRow);
+    } else {
+        $('#items_container_mobile').append(mobileCard);
+    }
+
+    itemIndex++;
+    updateSummary();
+
+    // Trigger initial calculation for new row
+    setTimeout(() => {
+        calculateGrandTotal();
+    }, 50);
 }
 
-function removeItemRow(button) {
-    if ($('#itemsTableBody tr').length > 1) {
-        $(button).closest('tr').remove();
-        updateBillSummary();
+// Global variables for modal functionality
+let currentItemInput = null;
+let allItems = []; // Store all items for local filtering
+let modalSearchTimeout;
+
+// Open Item Search Modal
+function openItemSearchModal(input) {
+    currentItemInput = input;
+
+    // Load all items initially if not loaded
+    if (allItems.length === 0) {
+        loadAllItemsForModal();
     } else {
-        alert('At least one item is required!');
+        // Show modal with existing items
+        showModalWithItems(allItems);
+    }
+
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('itemSearchModal'));
+    modal.show();
+
+    // Focus on search input after modal is shown
+    $('#itemSearchModal').on('shown.bs.modal', function() {
+        $('#modalSearchInput').focus();
+    });
+}
+
+// Load all items for the modal
+function loadAllItemsForModal() {
+    $('#modalItemsList').html(`
+        <div class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading items...</p>
+        </div>
+    `);
+
+    $.get('<?php echo base_url("billing/search_items"); ?>', { q: '' }, function(data) {
+        try {
+            allItems = JSON.parse(data);
+            showModalWithItems(allItems);
+        } catch (e) {
+            console.error('Error parsing items data:', e);
+            showModalError('Error loading items');
+        }
+    }).fail(function() {
+        showModalError('Server connection failed');
+    });
+}
+
+// Show items in modal with search functionality
+function showModalWithItems(items) {
+    if (items.length === 0) {
+        $('#modalItemsList').html(`
+            <div class="text-center p-4 text-muted">
+                <i class="fa fa-box-open fa-2x mb-2"></i>
+                <p>No items available</p>
+            </div>
+        `);
+        return;
+    }
+
+    let html = '';
+    items.forEach(item => {
+        html += `
+            <div class="list-group-item list-group-item-action item-modal-option"
+                 data-id="${item.id}"
+                 data-title="${item.title}"
+                 data-price="${item.price}"
+                 data-sku="${item.sku}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${item.title}</div>
+                        <small class="text-muted">SKU: ${item.sku}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold text-success">${currency} ${item.price}</div>
+                        <button type="button" class="btn btn-sm mt-1 select-item-btn" style="background-color: #20c997;"
+                                onclick="selectItemFromModal('${item.id}', '${item.title.replace(/'/g, "\\'")}', '${item.price}')">
+                            <i class="fa fa-check me-1"></i>Select
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    $('#modalItemsList').html(html);
+
+    // Add click handlers for the list items
+    $('.item-modal-option').on('click', function(e) {
+        if (!$(e.target).hasClass('select-item-btn')) {
+            const id = $(this).data('id');
+            const title = $(this).data('title');
+            const price = $(this).data('price');
+            selectItemFromModal(id, title, price);
+        }
+    });
+}
+
+// Search items in modal
+$('#modalSearchInput').on('input', function() {
+    clearTimeout(modalSearchTimeout);
+    const query = $(this).val().trim().toLowerCase();
+
+    modalSearchTimeout = setTimeout(() => {
+        if (query === '') {
+            showModalWithItems(allItems);
+        } else {
+            const filteredItems = allItems.filter(item =>
+                item.title.toLowerCase().includes(query) ||
+                item.sku.toLowerCase().includes(query) ||
+                item.price.toString().includes(query)
+            );
+            showModalWithItems(filteredItems);
+
+            if (filteredItems.length === 0) {
+                $('#modalItemsList').html(`
+                    <div class="text-center p-4 text-muted">
+                        <i class="fa fa-search fa-2x mb-2"></i>
+                        <p>No results found for "${query}"</p>
+                        <small>Try item name, SKU or price</small>
+                    </div>
+                `);
+            }
+        }
+    }, 300);
+});
+
+// Clear modal search
+function clearModalSearch() {
+    $('#modalSearchInput').val('');
+    if (allItems.length > 0) {
+        showModalWithItems(allItems);
     }
 }
 
-function updateRowTotal(row) {
-    let quantity = parseFloat(row.find('.quantity').val()) || 0;
-    let unitPrice = parseFloat(row.find('.unit-price').val()) || 0;
-    let total = quantity * unitPrice;
-    
-    row.find('.item-total').text(total.toFixed(2));
+// Select item from modal
+function selectItemFromModal(id, title, price) {
+    if (!currentItemInput) return;
+
+    // Find the item container (works for both desktop and mobile)
+    let itemContainer;
+    if ($(currentItemInput).closest('tr').length > 0) {
+        itemContainer = $(currentItemInput).closest('tr');
+    } else if ($(currentItemInput).closest('.mobile-item-card').length > 0) {
+        itemContainer = $(currentItemInput).closest('.mobile-item-card');
+    } else {
+        itemContainer = $(currentItemInput).closest('.item-row');
+    }
+
+    if (itemContainer.length === 0) {
+        console.error('Could not find item container');
+        return;
+    }
+
+    // Set the values
+    $(currentItemInput).val(title);
+    itemContainer.find('.item-id').val(id);
+    itemContainer.find('.unit-price').val(price);
+
+    // Add visual feedback
+    $(currentItemInput).addClass('is-valid');
+
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('itemSearchModal'));
+    if (modal) {
+        modal.hide();
+    }
+
+    // Calculate totals
+    const quantityInput = itemContainer.find('.quantity')[0];
+    if (quantityInput) {
+        calculateRowTotal(quantityInput);
+    }
+
+    // Success animation
+    itemContainer.find('.item-search').css({
+        'background-color': '#d4edda',
+        'transition': 'background-color 0.3s ease'
+    });
+
+    setTimeout(() => {
+        itemContainer.find('.item-search').css('background-color', '');
+    }, 300);
+
+    // Trigger calculations
+    setTimeout(() => {
+        calculateGrandTotal();
+        updateSummary();
+    }, 100);
 }
 
-function updateBillSummary() {
-    let totalItems = $('#itemsTableBody tr').length;
-    let grandTotal = 0;
-    
-    $('#itemsTableBody tr').each(function() {
-        let quantity = parseFloat($(this).find('.quantity').val()) || 0;
-        let unitPrice = parseFloat($(this).find('.unit-price').val()) || 0;
-        let total = quantity * unitPrice;
-        
-        $(this).find('.item-total').text(total.toFixed(2));
-        grandTotal += total;
+// Show error in modal
+function showModalError(message) {
+    $('#modalItemsList').html(`
+        <div class="text-center p-4 text-danger">
+            <i class="fa fa-exclamation-triangle fa-2x mb-2"></i>
+            <p>${message}</p>
+        </div>
+    `);
+}
+
+// Calculate Functions
+function calculateRowTotal(element) {
+    console.log('Calculating row total for element:', element);
+
+    // Handle both desktop table rows and mobile cards
+    let itemContainer;
+
+    // Check if we're in a table row (desktop)
+    if ($(element).closest('tr').length > 0) {
+        itemContainer = $(element).closest('tr');
+        console.log('Found desktop table row for calculation');
+    }
+    // Check if we're in a mobile card
+    else if ($(element).closest('.mobile-item-card').length > 0) {
+        itemContainer = $(element).closest('.mobile-item-card');
+        console.log('Found mobile card for calculation');
+    }
+    // Fallback for any other container
+    else {
+        itemContainer = $(element).closest('.item-row');
+        console.log('Using fallback item-row for calculation');
+    }
+
+    if (itemContainer.length === 0) {
+        console.error('Could not find item container for calculation:', element);
+        return;
+    }
+
+    const qty = parseFloat(itemContainer.find('.quantity').val()) || 0;
+    const price = parseFloat(itemContainer.find('.unit-price').val()) || 0;
+    const total = qty * price;
+
+    console.log('Calculation values:', { qty, price, total });
+
+    itemContainer.find('.row-total').val(total.toFixed(2));
+    calculateGrandTotal();
+    updateSummary();
+}
+
+function calculateGrandTotal() {
+    console.log('Calculating grand total...');
+    let total = 0;
+    let itemCount = 0;
+
+    $('.item-row').each(function(index) {
+        const qty = parseFloat($(this).find('.quantity').val()) || 0;
+        const price = parseFloat($(this).find('.unit-price').val()) || 0;
+        const itemTotal = qty * price;
+
+        console.log(`Item ${index + 1}: qty=${qty}, price=${price}, itemTotal=${itemTotal}`);
+
+        total += itemTotal;
+        itemCount++;
     });
-    
-    $('#totalItems').text(totalItems);
-    $('#grandTotal').text('<?php echo $settings['currency_symbol']; ?> ' + grandTotal.toFixed(2));
+
+    console.log(`Grand total calculation: ${itemCount} items, total=${total}`);
+
+    $('#grandTotal').text(currency + ' ' + total.toFixed(2));
+
+    console.log('Grand total updated to:', total.toFixed(2));
+}
+
+function updateSummary() {
+    let itemCount = 0;
+    let totalQty = 0;
+
+    $('.item-row').each(function() {
+        const itemName = $(this).find('.item-search').val().trim();
+        const qty = parseInt($(this).find('.quantity').val()) || 0;
+
+        if (itemName) {
+            itemCount++;
+            totalQty += qty;
+        }
+    });
+
+    $('#totalItems').text(itemCount);
+}
+
+function removeRow(button) {
+    if ($('.item-row').length > 1) {
+        $(button).closest('tr').remove();
+        calculateGrandTotal();
+        updateSummary();
+    } else {
+        alert('At least one item is required');
+    }
+}
+
+function removeMobileCard(button) {
+    if ($('.item-row').length > 1) {
+        $(button).closest('.mobile-item-card').remove();
+        calculateGrandTotal();
+        updateSummary();
+    } else {
+        alert('At least one item is required');
+    }
+}
+
+// Hide customer list when clicking outside (modal handles item suggestions now)
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('#customer_name, #customer_list').length) {
+        $('#customer_list').hide();
+    }
+});
+
+// Enhanced Form Validation for Mobile and Desktop
+$('#editBillForm').on('submit', function(e) {
+    let hasValidItems = false;
+    let hasEmptyPrice = false;
+
+    $('.item-row').each(function() {
+        const itemName = $(this).find('.item-search').val().trim();
+        const price = parseFloat($(this).find('.unit-price').val()) || 0;
+        const qty = parseInt($(this).find('.quantity').val()) || 0;
+
+        if (itemName && qty > 0) {
+            if (price <= 0) {
+                hasEmptyPrice = true;
+            } else {
+                hasValidItems = true;
+            }
+        }
+    });
+
+    if (!hasValidItems) {
+        e.preventDefault();
+        if ($(window).width() < 768) {
+            // Mobile alert with better styling
+            showMobileAlert('Please add at least one valid item', 'warning');
+        } else {
+            alert('Please add at least one valid item');
+        }
+        return false;
+    }
+
+    if (hasEmptyPrice) {
+        e.preventDefault();
+        if ($(window).width() < 768) {
+            showMobileAlert('Please enter prices for all items', 'warning');
+        } else {
+            alert('Please enter prices for all items');
+        }
+        return false;
+    }
+
+    if (!$('#customer_name').val().trim()) {
+        e.preventDefault();
+        if ($(window).width() < 768) {
+            showMobileAlert('Please enter customer name', 'warning');
+            $('#customer_name').focus();
+        } else {
+            alert('Please enter customer information');
+        }
+        return false;
+    }
+});
+
+function showMobileAlert(message, type = 'info') {
+    // Create mobile-friendly alert
+    const alertClass = type === 'warning' ? 'alert-warning' : 'alert-info';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed mobile-alert" role="alert"
+             style="top: 20px; left: 10px; right: 10px; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <i class="fa fa-info-circle me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+
+    // Remove existing alerts
+    $('.mobile-alert').remove();
+
+    // Add new alert
+    $('body').append(alertHtml);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        $('.mobile-alert').fadeOut();
+    }, 5000);
+}
+
+// Manual recalculation function (can be called from console for testing)
+function forceRecalculate() {
+    console.log('Force recalculating...');
+    calculateGrandTotal();
+    updateSummary();
 }
 </script> 
