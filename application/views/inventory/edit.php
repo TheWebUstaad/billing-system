@@ -92,15 +92,6 @@
                     </div>
                     <?php endif; ?>
 
-                    <div class="alert alert-info">
-                        <i class="fas fa-lightbulb me-2"></i>
-                        <strong>No Stock Tracking:</strong> This item will be automatically available during billing without stock limits.
-                    </div>
-
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Note:</strong> Changes will be reflected immediately in all billing processes.
-                    </div>
                 </div>
             </div>
         </div>

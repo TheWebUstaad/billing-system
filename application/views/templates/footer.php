@@ -45,5 +45,29 @@
         });
     </script>
     <?php endif; ?>
+
+    <?php if($this->session->flashdata('password_success')): ?>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Password Changed',
+            text: '<?php echo $this->session->flashdata('password_success'); ?>',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    </script>
+    <?php endif; ?>
+
+    <?php if($this->session->flashdata('password_error')): ?>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Password Change Failed',
+            text: '<?php echo $this->session->flashdata('password_error'); ?>',
+            timer: 3000,
+            showConfirmButton: false
+        });
+    </script>
+    <?php endif; ?>
 </body>
 </html> 

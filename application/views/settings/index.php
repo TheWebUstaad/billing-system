@@ -85,6 +85,39 @@
         </div>
 
         <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="<?php echo base_url('settings'); ?>">
+                        <input type="hidden" name="form_type" value="password_change">
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Current Password *</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                            <?php echo form_error('current_password', '<div class="text-danger">', '</div>'); ?>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password *</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password" required minlength="6">
+                            <div class="form-text">Minimum 6 characters</div>
+                            <?php echo form_error('new_password', '<div class="text-danger">', '</div>'); ?>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm New Password *</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            <?php echo form_error('confirm_password', '<div class="text-danger">', '</div>'); ?>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100">
+                            <i class="fa fa-key"></i> Change Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Preview</h5>
@@ -146,5 +179,34 @@ $(document).ready(function() {
             }
             form.classList.add('was-validated');
         }, false);
+    });
+
+    // Password confirmation validation
+    $('#confirm_password').on('input', function() {
+        var newPassword = $('#new_password').val();
+        var confirmPassword = $(this).val();
+
+        if (confirmPassword && newPassword !== confirmPassword) {
+            $(this).addClass('is-invalid');
+            $('#confirm_password').next('.invalid-feedback').remove();
+            $('#confirm_password').after('<div class="invalid-feedback">Passwords do not match.</div>');
+        } else {
+            $(this).removeClass('is-invalid');
+            $('#confirm_password').next('.invalid-feedback').remove();
+        }
+    });
+
+    $('#new_password').on('input', function() {
+        var confirmPassword = $('#confirm_password').val();
+        if (confirmPassword) {
+            if ($(this).val() !== confirmPassword) {
+                $('#confirm_password').addClass('is-invalid');
+                $('#confirm_password').next('.invalid-feedback').remove();
+                $('#confirm_password').after('<div class="invalid-feedback">Passwords do not match.</div>');
+            } else {
+                $('#confirm_password').removeClass('is-invalid');
+                $('#confirm_password').next('.invalid-feedback').remove();
+            }
+        }
     });
 });</script> 

@@ -17,7 +17,7 @@
                 <div class="card-body">
                     <h5 class="card-title">کسٹمر کی معلومات</h5>
                     <div class="row">
-                        <div class="col-12">
+                        <div class="col-12 position-relative">
                             <label class="form-label">کسٹمر کا نام*</label>
                             <input type="text" class="form-control" id="customer_name" name="customer_name" required
                                    placeholder="کسٹمر کا نام درج کریں...">
@@ -109,7 +109,7 @@
         <div class="col-12 col-lg-4">
             
             <!-- Bill Summary -->
-            <div class="card">
+            <!-- <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">بل کا خلاصہ</h5>
                     <div class="row">
@@ -132,11 +132,51 @@
                         <small class="text-muted">کل رقم</small>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 
     <?php echo form_close(); ?>
+
+    <!-- Item Search Modal -->
+    <div class="modal fade" id="itemSearchModal" tabindex="-1" aria-labelledby="itemSearchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header  text-white" style="background-color: #20c997;">
+                    <h5 class="modal-title" id="itemSearchModalLabel">
+                        <i class="fa fa-search me-2"></i>آئیٹم تلاش کریں
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <!-- Search Input -->
+                    <div class="p-3 border-bottom bg-light">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa fa-search"></i></span>
+                            <input type="text" class="form-control" id="modalSearchInput" placeholder="آئیٹم کا نام، SKU یا قیمت لکھیں...">
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearModalSearch()">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Items List -->
+                    <div id="modalItemsList" class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Items will be loaded here -->
+                        <div class="text-center p-4 text-muted">
+                            <i class="fa fa-search fa-2x mb-2"></i>
+                            <p>تلاش کرنے کے لیے ٹائپ کریں</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa fa-times me-1"></i>منسوخ کریں
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -200,7 +240,8 @@ let customerTimeout;
 $('#customer_name').on('input', function() {
     clearTimeout(customerTimeout);
     const query = $(this).val().trim();
-    
+    console.log('Customer input:', query);
+
     if (query.length >= 2) {
         customerTimeout = setTimeout(() => {
             searchCustomers(query);
@@ -211,19 +252,36 @@ $('#customer_name').on('input', function() {
 });
 
 function searchCustomers(query) {
-    $.get('<?php echo base_url("billing/search_customers"); ?>', { q: query }, function(data) {
-        showCustomers(JSON.parse(data));
+    console.log('Searching for customers:', query);
+    $.ajax({
+        url: '<?php echo base_url("billing/search_customers"); ?>',
+        type: 'GET',
+        data: { q: query },
+        dataType: 'json',
+        success: function(data) {
+            console.log('Customer search response:', data);
+            showCustomers(data);
+        },
+        error: function(xhr, status, error) {
+            console.log('Customer search error:', error, xhr.responseText);
+        }
     });
 }
 
 function showCustomers(customers) {
+    console.log('Showing customers:', customers.length, 'results');
     const list = $('#customer_list');
     list.empty();
-    
+
     if (customers.length > 0) {
         customers.forEach(customer => {
+            // Escape single quotes in customer data to prevent JavaScript errors
+            const escapedName = customer.name.replace(/'/g, "\\'");
+            const escapedPhone = (customer.phone || '').replace(/'/g, "\\'");
+
             list.append(`
-                <a href="#" class="list-group-item list-group-item-action" onclick="selectCustomer('${customer.name}', '${customer.phone || ''}')">
+                <a href="#" class="list-group-item list-group-item-action customer-suggestion-item"
+                   onclick="selectCustomer('${escapedName}', '${escapedPhone}')">
                     <div class="d-flex justify-content-between">
                         <strong>${customer.name}</strong>
                         <small class="text-muted">${customer.phone || 'No phone'}</small>
@@ -231,8 +289,19 @@ function showCustomers(customers) {
                 </a>
             `);
         });
+        console.log('Customer list should be visible now');
         list.show();
+
+        // Mobile-specific enhancements
+        if ($(window).width() < 768) {
+            $('.customer-suggestion-item').css({
+                'min-height': '48px',
+                'padding': '12px 16px',
+                'font-size': '16px' // Prevent zoom on iOS
+            });
+        }
     } else {
+        console.log('No customers found, hiding list');
         list.hide();
     }
 }
@@ -275,11 +344,14 @@ function addItemRow() {
     const desktopRow = `
         <tr class="item-row" data-index="${itemIndex}">
             <td>
-                <input type="text" class="form-control form-control-sm item-search"
-                       name="item_name[]" placeholder="آئیٹم کا نام لکھیں..."
-                       onkeyup="searchItems(this)" onfocus="searchItems(this)" required>
-                <div class="item-suggestions position-absolute bg-white border rounded shadow"
-                     style="display: none; z-index: 1000; width: 100%; max-height: 200px; overflow-y: auto; top: 100%; left: 0;"></div>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm item-search"
+                           name="item_name[]" placeholder="آئیٹم کا نام لکھیں..."
+                           onfocus="openItemSearchModal(this)" readonly required>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
                 <input type="hidden" class="item-id" name="item_id[]">
             </td>
             <td>
@@ -304,7 +376,7 @@ function addItemRow() {
 
     // Mobile Card Layout
     const mobileCard = `
-        <div class="mobile-item-card card mb-3 item-row" data-index="${itemIndex}" style="border-left: 4px solid #007bff;">
+        <div class="mobile-item-card card mb-3 item-row" data-index="${itemIndex}" style="border-left: 4px solid #20c997 ">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <h6 class="card-title mb-0 text-primary">آئیٹم #${itemIndex + 1}</h6>
@@ -315,11 +387,14 @@ function addItemRow() {
 
                 <div class="mb-3">
                     <label class="form-label small fw-bold">آئیٹم کا نام *</label>
-                    <input type="text" class="form-control item-search"
-                           name="item_name[]" placeholder="آئیٹم کا نام لکھیں..."
-                           onkeyup="searchItems(this)" onfocus="searchItems(this)" required>
-                    <div class="item-suggestions position-absolute bg-white border rounded shadow"
-                         style="display: none; z-index: 1000; width: 100%; max-height: 200px; overflow-y: auto; top: 100%; left: 0;"></div>
+                    <div class="input-group">
+                        <input type="text" class="form-control item-search"
+                               name="item_name[]" placeholder="آئیٹم کا نام لکھیں..."
+                               onfocus="openItemSearchModal(this)" readonly required>
+                        <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
                     <input type="hidden" class="item-id" name="item_id[]">
                 </div>
 
@@ -360,130 +435,184 @@ function addItemRow() {
     }, 50);
 }
 
-// Item Search - Agar pehle se hai to suggestion show hogi
-let itemSearchTimeout;
-function searchItems(input) {
-    clearTimeout(itemSearchTimeout);
-    const query = $(input).val().trim();
-    const suggestions = $(input).siblings('.item-suggestions');
-    
-    if (query.length >= 1) {
-        itemSearchTimeout = setTimeout(() => {
-            $.get('<?php echo base_url("billing/search_items"); ?>', { q: query }, function(data) {
-                showItemSuggestions(JSON.parse(data), suggestions, input);
-            });
-        }, 300);
+// Global variables for modal functionality
+let currentItemInput = null;
+let allItems = []; // Store all items for local filtering
+let modalSearchTimeout;
+
+// Open Item Search Modal
+function openItemSearchModal(input) {
+    currentItemInput = input;
+
+    // Load all items initially if not loaded
+    if (allItems.length === 0) {
+        loadAllItemsForModal();
     } else {
-        suggestions.hide();
+        // Show modal with existing items
+        showModalWithItems(allItems);
     }
+
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById('itemSearchModal'));
+    modal.show();
+
+    // Focus on search input after modal is shown
+    $('#itemSearchModal').on('shown.bs.modal', function() {
+        $('#modalSearchInput').focus();
+    });
 }
 
-function showItemSuggestions(items, suggestions, input) {
-    console.log('Showing item suggestions:', items.length, 'items'); // Debug log
-    suggestions.empty();
-    
-    if (items.length > 0) {
-        console.log('Items found, displaying suggestions');
-        // Agar items pehle se hain to show karein
-        suggestions.append('<div class="p-2 bg-light fw-bold small">دستیاب آئیٹمز</div>');
-        
-        items.forEach(item => {
-            const suggestionItem = $(`
-                <div class="p-2 border-bottom suggestion-item" style="cursor: pointer;">
-                    <div class="d-flex justify-content-between">
-                        <strong>${item.title}</strong>
-                        <span class="text-success">PKR ${item.price}</span>
-                    </div>
-                    <small class="text-muted">SKU: ${item.sku}</small>
-                </div>
-            `);
+// Load all items for the modal
+function loadAllItemsForModal() {
+    $('#modalItemsList').html(`
+        <div class="text-center p-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">لوڈ ہو رہا ہے...</span>
+            </div>
+            <p class="mt-2 text-muted">آئیٹمز لوڈ ہو رہی ہیں...</p>
+        </div>
+    `);
 
-            // Add click event using jQuery instead of inline onclick for better reliability
-            suggestionItem.on('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                selectExistingItem(this, item.id, item.title, item.price);
-            });
-
-            suggestions.append(suggestionItem);
-        });
-        suggestions.show();
-    } else {
-        suggestions.hide();
-    }
+    $.get('<?php echo base_url("billing/search_items"); ?>', { q: '' }, function(data) {
+        try {
+            allItems = JSON.parse(data);
+            showModalWithItems(allItems);
+        } catch (e) {
+            console.error('Error parsing items data:', e);
+            showModalError('آئیٹمز لوڈ کرنے میں خرابی');
+        }
+    }).fail(function() {
+        showModalError('سرور سے رابطہ نہیں ہو سکا');
+    });
 }
 
-function selectExistingItem(element, id, title, price) {
-    console.log('Selecting item:', {id, title, price}); // Debug log
-
-    // Handle both desktop table rows and mobile cards
-    let itemContainer;
-
-    // Check if we're in a table row (desktop)
-    if ($(element).closest('tr').length > 0) {
-        itemContainer = $(element).closest('tr');
-        console.log('Found desktop table row');
-    }
-    // Check if we're in a mobile card
-    else if ($(element).closest('.mobile-item-card').length > 0) {
-        itemContainer = $(element).closest('.mobile-item-card');
-        console.log('Found mobile card');
-    }
-    // Fallback for any other container
-    else {
-        itemContainer = $(element).closest('.item-row');
-        console.log('Using fallback item-row selector');
-    }
-
-    if (itemContainer.length === 0) {
-        console.error('Could not find item container for element:', element);
+// Show items in modal with search functionality
+function showModalWithItems(items) {
+    if (items.length === 0) {
+        $('#modalItemsList').html(`
+            <div class="text-center p-4 text-muted">
+                <i class="fa fa-box-open fa-2x mb-2"></i>
+                <p>کوئی آئیٹم دستیاب نہیں</p>
+            </div>
+        `);
         return;
     }
 
-    console.log('Setting values for item container:', itemContainer);
-
-    // Set the values
-    const itemSearchInput = itemContainer.find('.item-search');
-    const itemIdInput = itemContainer.find('.item-id');
-    const unitPriceInput = itemContainer.find('.unit-price');
-
-    itemSearchInput.val(title);
-    itemIdInput.val(id);
-    unitPriceInput.val(price);
-
-    console.log('Values set:', {
-        itemSearch: itemSearchInput.val(),
-        itemId: itemIdInput.val(),
-        unitPrice: unitPriceInput.val()
+    let html = '';
+    items.forEach(item => {
+        html += `
+            <div class="list-group-item list-group-item-action item-modal-option"
+                 data-id="${item.id}"
+                 data-title="${item.title}"
+                 data-price="${item.price}"
+                 data-sku="${item.sku}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${item.title}</div>
+                        <small class="text-muted">SKU: ${item.sku}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold text-success">PKR ${item.price}</div>
+                        <button type="button" class="btn  btn-sm mt-1 select-item-btn" style="background-color: #20c997;"
+                                onclick="selectItemFromModal('${item.id}', '${item.title.replace(/'/g, "\\'")}', '${item.price}')">
+                            <i class="fa fa-check me-1"></i>منتخب کریں
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
     });
 
-    // Hide the suggestions
-    $(element).closest('.item-suggestions').hide();
+    $('#modalItemsList').html(html);
 
-    // Calculate total for the row/card
+    // Add click handlers for the list items
+    $('.item-modal-option').on('click', function(e) {
+        if (!$(e.target).hasClass('select-item-btn')) {
+            const id = $(this).data('id');
+            const title = $(this).data('title');
+            const price = $(this).data('price');
+            selectItemFromModal(id, title, price);
+        }
+    });
+}
+
+// Search items in modal
+$('#modalSearchInput').on('input', function() {
+    clearTimeout(modalSearchTimeout);
+    const query = $(this).val().trim().toLowerCase();
+
+    modalSearchTimeout = setTimeout(() => {
+        if (query === '') {
+            showModalWithItems(allItems);
+        } else {
+            const filteredItems = allItems.filter(item =>
+                item.title.toLowerCase().includes(query) ||
+                item.sku.toLowerCase().includes(query) ||
+                item.price.toString().includes(query)
+            );
+            showModalWithItems(filteredItems);
+
+            if (filteredItems.length === 0) {
+                $('#modalItemsList').html(`
+                    <div class="text-center p-4 text-muted">
+                        <i class="fa fa-search fa-2x mb-2"></i>
+                        <p>"${query}" کے لیے کوئی نتیجہ نہیں ملا</p>
+                        <small>آئیٹم کا نام، SKU یا قیمت چیک کریں</small>
+                    </div>
+                `);
+            }
+        }
+    }, 300);
+});
+
+// Clear modal search
+function clearModalSearch() {
+    $('#modalSearchInput').val('');
+    if (allItems.length > 0) {
+        showModalWithItems(allItems);
+    }
+}
+
+// Select item from modal
+function selectItemFromModal(id, title, price) {
+    if (!currentItemInput) return;
+
+    // Find the item container (works for both desktop and mobile)
+    let itemContainer;
+    if ($(currentItemInput).closest('tr').length > 0) {
+        itemContainer = $(currentItemInput).closest('tr');
+    } else if ($(currentItemInput).closest('.mobile-item-card').length > 0) {
+        itemContainer = $(currentItemInput).closest('.mobile-item-card');
+    } else {
+        itemContainer = $(currentItemInput).closest('.item-row');
+    }
+
+    if (itemContainer.length === 0) {
+        console.error('Could not find item container');
+        return;
+    }
+
+    // Set the values
+    $(currentItemInput).val(title);
+    itemContainer.find('.item-id').val(id);
+    itemContainer.find('.unit-price').val(price);
+
+    // Add visual feedback
+    $(currentItemInput).addClass('is-valid');
+
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('itemSearchModal'));
+    if (modal) {
+        modal.hide();
+    }
+
+    // Calculate totals
     const quantityInput = itemContainer.find('.quantity')[0];
     if (quantityInput) {
         calculateRowTotal(quantityInput);
     }
 
-    // Add visual feedback for mobile
-    if ($(window).width() < 768) {
-        itemContainer.find('.item-search').addClass('is-valid');
-        itemContainer.find('.unit-price').addClass('is-valid');
-    }
-
-    // Trigger change event to update calculations
-    itemContainer.find('.item-search').trigger('change');
-    itemContainer.find('.unit-price').trigger('change');
-    itemContainer.find('.quantity').trigger('change');
-
-    // Also manually trigger calculation after a small delay to ensure values are set
-    setTimeout(() => {
-        calculateGrandTotal();
-        updateSummary();
-    }, 100);
-
-    // Add a brief success animation
+    // Success animation
     itemContainer.find('.item-search').css({
         'background-color': '#d4edda',
         'transition': 'background-color 0.3s ease'
@@ -492,7 +621,25 @@ function selectExistingItem(element, id, title, price) {
     setTimeout(() => {
         itemContainer.find('.item-search').css('background-color', '');
     }, 300);
+
+    // Trigger calculations
+    setTimeout(() => {
+        calculateGrandTotal();
+        updateSummary();
+    }, 100);
 }
+
+// Show error in modal
+function showModalError(message) {
+    $('#modalItemsList').html(`
+        <div class="text-center p-4 text-danger">
+            <i class="fa fa-exclamation-triangle fa-2x mb-2"></i>
+            <p>${message}</p>
+        </div>
+    `);
+}
+
+// Removed old selectExistingItem function - now using modal approach
 
 // Mobile-specific enhancements
 $(document).ready(function() {
@@ -606,10 +753,10 @@ function removeMobileCard(button) {
     }
 }
 
-// Hide suggestions when clicking outside
+// Hide customer list when clicking outside (modal handles item suggestions now)
 $(document).on('click', function(e) {
-    if (!$(e.target).closest('.item-search, .item-suggestions, #customer_name, #customer_list').length) {
-        $('.item-suggestions, #customer_list').hide();
+    if (!$(e.target).closest('#customer_name, #customer_list').length) {
+        $('#customer_list').hide();
     }
 });
 
@@ -697,22 +844,35 @@ function forceRecalculate() {
 </script>
 
 <style>
-.suggestion-item:hover {
-    background-color: #f8f9fa !important;
-    transform: translateY(-1px);
+/* Item Search Modal Styles */
+#itemSearchModal .modal-dialog {
+    max-width: 600px;
+}
+
+#itemSearchModal .list-group-item {
+    border-left: none;
+    border-right: none;
     transition: all 0.2s ease;
 }
 
-.suggestion-item:active {
-    background-color: #e9ecef !important;
-    transform: translateY(0);
+#itemSearchModal .list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.item-suggestions {
-    max-height: 250px;
-    overflow-y: auto;
-    border-radius: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+#itemSearchModal .item-modal-option {
+    cursor: pointer;
+    padding: 1rem;
+}
+
+#itemSearchModal .select-item-btn {
+    min-width: 80px;
+}
+
+#itemSearchModal .spinner-border {
+    width: 2rem;
+    height: 2rem;
 }
 
 .table-bordered td {
@@ -768,7 +928,7 @@ function forceRecalculate() {
     }
 
     .form-control:focus {
-        border-color: #007bff;
+        border-color: #20c997 
         box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
     }
 
@@ -799,7 +959,7 @@ function forceRecalculate() {
 
     .mobile-item-card .card-title {
         font-size: 1rem;
-        color: #007bff;
+        color: #20c997 
         margin-bottom: 1rem;
     }
 
@@ -904,21 +1064,74 @@ function forceRecalculate() {
         margin: 0;
     }
 
-    /* Item Suggestions */
-    .item-suggestions {
-        max-width: 90vw;
-        left: 5vw !important;
-        right: 5vw !important;
-        width: auto !important;
+    /* Modal Enhancements for Mobile */
+    #itemSearchModal .modal-dialog {
+        margin: 1rem;
+        max-width: none;
     }
 
-    /* Customer List */
-    #customer_list {
-        max-width: 90vw;
-        left: 5vw !important;
-        right: 5vw !important;
-        width: auto !important;
+    #itemSearchModal .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
+
+    #itemSearchModal .modal-header {
+        border-radius: 12px 12px 0 0;
+        padding: 1rem 1.5rem;
+    }
+
+    #itemSearchModal .modal-body {
+        padding: 0;
+    }
+
+    #itemSearchModal .list-group-item {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin: 0.25rem 0.5rem;
+    }
+
+    /* Enhanced touch targets for mobile */
+    #itemSearchModal .select-item-btn {
+        min-height: 36px;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Fix positioning for customer suggestions on mobile */
+    #customer_list {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        z-index: 1050 !important;
+        background: white !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        max-height: 200px !important;
+        overflow-y: auto !important;
+    }
+
+    /* Mobile customer suggestion items */
+    .customer-suggestion-item {
+        min-height: 48px !important;
+        padding: 12px 16px !important;
+        font-size: 16px !important; /* Prevent zoom on iOS */
+        display: block !important;
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+    .customer-suggestion-item:hover {
+        background-color: #f8f9fa !important;
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+
 
     /* Loading states */
     .btn:disabled {

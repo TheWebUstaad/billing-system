@@ -43,7 +43,7 @@
         .customer-info {
             font-size: 8px;
             /* border: 1px solid #333; */
-            background-color: #f9f9f9;
+            /* background-color: #f9f9f9; */
             width: 80%;
             box-sizing: border-box;
 
@@ -94,13 +94,13 @@
         }
         .text-title { 
             text-align: left !important;
-            width: 50%;
+            width: 40%;
         }
         .text-quantity { text-align: center !important;
-        width: 10%;
+        width: 15%;
         }
         .text-price { text-align: center !important;
-        width: 10%;
+        width: 15%;
         }
         .text-totla { text-align: center !important;
         width: 10%;
@@ -134,14 +134,13 @@
             ?>
         </div>
     </div>
-
     <div class="half-wrapper">
     <div class="customer-info">
         <table class="customer-info-table" cellpadding="4" cellspacing="2" style="margin: 4px;">
             <tr>
                 <td style="padding: 3px 6px;font-size: 10px; font-weight: bold;"><span class="info-label"></span> <?php echo !empty($bill->customer_name) ? $bill->customer_name : 'Walk-in'; ?></td>
-                <td style="padding: 3px 6px;font-size: 10px; font-weight: bold;"><span class="info-label"></span> <?php echo date('d-M-y h:i A', strtotime($bill->created_at)); ?></td>
-                <td style="padding: 3px 6px;font-size: 10px; font-weight: bold;"><span class="info-label"></span> Bill No:<?php echo $bill->bill_number; ?></td>
+                <td style="padding: 3px 6px;font-size: 12px; font-weight: bold;"><span class="info-label"></span> <?php echo date('d-M-y h:i A', strtotime($bill->created_at)); ?></td>
+                <td style="padding: 3px 6px;font-size: 12px; font-weight: bold;"><span class="info-label"></span> Bill No:<?php echo $bill->bill_number; ?></td>
             </tr>
         </table>
     </div>
@@ -150,9 +149,9 @@
             <thead>
                 <tr>
                     <th style="width: 6%;">No</th>
-                    <th style="width: 50%;">Item</th>
-                    <th style="width: 10%;">Qty</th>
-                    <th style="width: 10%;">Price</th>
+                    <th style="width: 40%;">Item</th>
+                    <th style="width: 15%;">Qty</th>
+                    <th style="width: 15%;">Price</th>
                     <th style="width: 20%;">Amount</th>
                 </tr>
             </thead>
@@ -190,13 +189,13 @@
                     <td colspan="2" style="font-weight: bold;">Total</td>
                     <td class="text-center" style="font-weight: bold;"><?php echo $total_qty; ?></td>
                     <td></td>
-                    <td class="text-right" style="font-weight: bold;"><?php echo $settings['currency_symbol'] ?? 'PKR'; ?> <?php echo number_format($bill->total_amount, 2); ?></td>
+                    <td class="text-right" style="font-weight: bold;"> <?php echo number_format($bill->total_amount, 2); ?></td>
                 </tr>
             </tbody>
         </table>
     </div>
-    <div class="footer">
+    <!-- <div class="footer">
      power by websaaz solutions
-    </div>
+    </div> -->
 </body>
 </html>

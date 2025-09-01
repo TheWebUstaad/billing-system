@@ -373,9 +373,7 @@
                             <i class="fa fa-bars"></i>
                         </button>
 
-                        <span class="navbar-text shop-name">
-                            <?php echo $settings['shop_name']; ?>
-                        </span>
+                        
                         <ul class="navbar-nav ms-auto">
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">

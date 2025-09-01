@@ -268,7 +268,7 @@
     }
 
     .bill-card:hover {
-        border-color: #007bff;
+        border-color: #20c997 ;
         box-shadow: 0 4px 12px rgba(0,123,255,0.2);
         transform: translateY(-2px);
     }
@@ -494,7 +494,7 @@
     .dropdown-item:hover {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
         transform: translateX(3px) !important;
-        color: #007bff !important;
+        color: #20c997  !important;
     }
 
     .dropdown-item i {
@@ -524,7 +524,7 @@
     }
 
     #searchInput:focus {
-        border-color: #007bff;
+        border-color: #20c997 ;
         box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
     }
 
@@ -541,13 +541,13 @@
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        background: linear-gradient(135deg,  #20c997 0%, #20c997 100%);
         border: none;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .btn-primary:hover {
-        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        background: linear-gradient(135deg, #20c997 0%, #20c997 100%);
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
@@ -585,7 +585,7 @@
 }
 
 .sortable:hover {
-    color: #007bff;
+    color: #20c997 ;
     text-decoration: none;
 }
 
@@ -671,7 +671,7 @@
 }
 
 .pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #20c997 0%, #20c997 100%);
     border: none;
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
@@ -706,7 +706,7 @@
 }
 
 #searchInput:focus {
-    border-color: #007bff;
+    border-color: #20c997 ;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
     transform: translateY(-1px);
 }
@@ -815,7 +815,7 @@
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: #007bff;
+    border-color: #20c997 ;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
     transform: translateY(-1px);
 }
@@ -1186,28 +1186,27 @@ $(document).ready(function() {
                                         <div class="bill-date small text-muted">
                                             <i class="fas fa-calendar me-1"></i>${formatDate(bill.created_at)}
                                         </div>
-                                    </div>
-                                    <div class="col-4 text-end">
-                                        <div class="bill-amount mb-2">
+                                        <div class="bill-amount mb-2 mt-2">
                                             <div class="fw-bold text-success fs-6"><?php echo $settings['currency_symbol']; ?> ${parseFloat(bill.total_amount).toFixed(2)}</div>
                                             <small class="text-muted">${itemsCount} items</small>
                                         </div>
                                     </div>
+                                  
                                 </div>
                                 <div class="bill-actions mt-3 pt-2 border-top">
                                     <div class="row g-1">
                                         <div class="col-4">
-                                            <a href="<?php echo base_url('billing/view/'); ?>${bill.id}" class="btn btn-primary btn-sm w-100">
+                                            <a href="<?php echo base_url('billing/view/'); ?>${bill.id}" class="btn btn-primary btn-sm w-100" style="background-color: #20c997;"    >
                                                 <i class="fas fa-eye me-1"></i>View
                                             </a>
                                         </div>
                                         <div class="col-4">
-                                            <a href="<?php echo base_url('billing/edit/'); ?>${bill.id}" class="btn btn-outline-secondary btn-sm w-100">
+                                            <a href="<?php echo base_url('billing/edit/'); ?>${bill.id}" class="btn btn-outline-secondary btn-sm w-100" style="background-color: #20c997;"   >
                                                 <i class="fas fa-edit me-1"></i>Edit
                                             </a>
                                         </div>
                                         <div class="col-4">
-                                            <a href="<?php echo base_url('billing/pdf/'); ?>${bill.id}" class="btn btn-outline-success btn-sm w-100" target="_blank">
+                                            <a href="<?php echo base_url('billing/pdf/'); ?>${bill.id}" class="btn btn-outline-success btn-sm w-100" target="_blank" style="background-color: #20c997;">
                                                 <i class="fas fa-download me-1"></i>PDF
                                             </a>
                                         </div>

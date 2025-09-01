@@ -94,7 +94,7 @@
 
                     <div class="alert alert-info">
                         <i class="fas fa-lightbulb me-2"></i>
-                        <strong>No Stock Tracking:</strong> Items will be automatically available during billing without stock limits.
+                      
                     </div>
                 </div>
             </div>
