@@ -27,9 +27,9 @@
 
                     <div class="row mt-3">
                         <div class="col-12">
-                            <label class="form-label">فون نمبر</label>
+                            <label class="form-label">فون نمبر <small class="text-muted">(اختیاری)</small></label>
                             <input type="tel" class="form-control" id="customer_phone" name="customer_phone"
-                                   placeholder="مثال: 0300-1234567" pattern="[0-9]{4}-[0-9]{7}">
+                                   placeholder="فون نمبر درج کریں">
                             <div class="form-text">فون نمبر درج کرنے سے کسٹمر کی پہچان آسان ہوگی</div>
                         </div>
                     </div>
@@ -311,22 +311,37 @@ function selectCustomer(name, phone) {
     $('#customer_phone').val(phone);
     $('#customer_list').hide();
 
-    // Add visual feedback on mobile
+    // Add visual feedback for customer selection
+    $('#customer_name').addClass('customer-selected is-valid');
+    if (phone) {
+        $('#customer_phone').addClass('customer-selected is-valid');
+    }
+
+    // Add mobile-specific feedback
     if ($(window).width() < 768) {
         $('#customer_name').addClass('is-valid');
         if (phone) {
             $('#customer_phone').addClass('is-valid');
         }
     }
+
+    // Trigger input events to ensure validation recognizes the values
+    $('#customer_name').trigger('input');
+    $('#customer_phone').trigger('input');
+
+    // Remove the selection styling after a delay
+    setTimeout(() => {
+        $('#customer_name, #customer_phone').removeClass('customer-selected');
+    }, 2000);
 }
 
 // Auto-validate phone when customer name is typed
 $('#customer_phone').on('blur', function() {
     const phone = $(this).val().trim();
     const name = $('#customer_name').val().trim();
-    
+
     if (phone && name) {
-        // Check if customer exists with this phone
+        // Check if customer exists with this phone (no format validation)
         $.get('<?php echo base_url("billing/get_customer_details"); ?>', { phone: phone }, function(data) {
             const customer = JSON.parse(data);
             if (customer && customer.name !== name) {
@@ -764,12 +779,12 @@ $(document).on('click', function(e) {
 $('#billForm').on('submit', function(e) {
     let hasValidItems = false;
     let hasEmptyPrice = false;
-    
+
     $('.item-row').each(function() {
         const itemName = $(this).find('.item-search').val().trim();
         const price = parseFloat($(this).find('.unit-price').val()) || 0;
         const qty = parseInt($(this).find('.quantity').val()) || 0;
-        
+
         if (itemName && qty > 0) {
             if (price <= 0) {
                 hasEmptyPrice = true;
@@ -778,7 +793,7 @@ $('#billForm').on('submit', function(e) {
             }
         }
     });
-    
+
     if (!hasValidItems) {
         e.preventDefault();
         if ($(window).width() < 768) {
@@ -789,7 +804,7 @@ $('#billForm').on('submit', function(e) {
         }
         return false;
     }
-    
+
     if (hasEmptyPrice) {
         e.preventDefault();
         if ($(window).width() < 768) {
@@ -799,17 +814,24 @@ $('#billForm').on('submit', function(e) {
         }
         return false;
     }
-    
-    if (!$('#customer_name').val().trim()) {
+
+    // Check customer name with more robust validation
+    const customerName = $('#customer_name').val().trim();
+    const customerPhone = $('#customer_phone').val().trim();
+
+    if (!customerName || customerName.length < 2) {
         e.preventDefault();
         if ($(window).width() < 768) {
             showMobileAlert('براہ کرم کسٹمر کا نام درج کریں', 'warning');
             $('#customer_name').focus();
         } else {
-        alert('براہ کرم کسٹمر کی تفصیلات درج کریں');
+        alert('براہ کرم کسٹمر کا نام درج کریں');
+        $('#customer_name').focus();
         }
         return false;
     }
+
+    // Phone number validation removed - accept any format including blank
 });
 
 function showMobileAlert(message, type = 'info') {
@@ -1175,6 +1197,17 @@ function forceRecalculate() {
     background-repeat: no-repeat;
     background-position: right calc(0.375em + 0.1875rem) center;
     background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Customer selection feedback */
+.customer-selected {
+    background-color: #d4edda !important;
+    border-color: #28a745 !important;
+    transition: all 0.3s ease;
+}
+
+.customer-selected::placeholder {
+    color: #28a745 !important;
 }
 
 /* Mobile alerts */
