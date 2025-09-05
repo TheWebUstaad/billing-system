@@ -325,14 +325,50 @@ class Billing_model extends CI_Model {
         $this->db->where('id', $id);
         $this->db->update('bills', $bill_data);
 
-        // Delete existing bill items
+        // Get existing bill items
         $this->db->where('bill_id', $id);
-        $this->db->delete('bill_items');
+        $existing_items = $this->db->get('bill_items')->result_array();
 
-        // Insert updated bill items
+        // Create maps for easy lookup
+        $existing_items_map = [];
+        foreach ($existing_items as $existing_item) {
+            $existing_items_map[$existing_item['item_id']] = $existing_item;
+        }
+
+        $new_items_map = [];
         foreach ($items as $item) {
-            $item['bill_id'] = $id;
-            $this->db->insert('bill_items', $item);
+            $new_items_map[$item['item_id']] = $item;
+        }
+
+        // Update existing items, insert new items, delete removed items
+        foreach ($items as $item) {
+            $item_id = $item['item_id'];
+
+            if (isset($existing_items_map[$item_id])) {
+                // Update existing item
+                $existing_item = $existing_items_map[$item_id];
+                if ($existing_item['quantity'] != $item['quantity'] ||
+                    $existing_item['unit_price'] != $item['unit_price']) {
+                    $this->db->where('id', $existing_item['id']);
+                    $this->db->update('bill_items', [
+                        'quantity' => $item['quantity'],
+                        'unit_price' => $item['unit_price'],
+                        'total_price' => $item['quantity'] * $item['unit_price']
+                    ]);
+                }
+                // Remove from existing items map (already processed)
+                unset($existing_items_map[$item_id]);
+            } else {
+                // Insert new item
+                $item['bill_id'] = $id;
+                $this->db->insert('bill_items', $item);
+            }
+        }
+
+        // Delete items that are no longer in the bill
+        foreach ($existing_items_map as $remaining_item) {
+            $this->db->where('id', $remaining_item['id']);
+            $this->db->delete('bill_items');
         }
 
         $this->db->trans_complete();

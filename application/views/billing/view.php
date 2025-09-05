@@ -1,106 +1,52 @@
-    <!-- Simple Mobile Container -->
-    <div class="simple-mobile">
-        <!-- Simple Header -->
-        <div class="simple-header">
-            <div class="back-button">
-                <a href="<?php echo base_url('billing'); ?>" class="back-link">
+    <!-- Professional Bill Container -->
+    <div class="bill-container">
+        <!-- Bill Header -->
+        <div class="bill-header">
+            <div class="nav-back">
+                <a href="<?php echo base_url('billing'); ?>" class="back-btn">
                     <i class="fa fa-arrow-left"></i>
                 </a>
                 </div>
-            <div class="bill-title">
-                <h1>Bill #<?php echo $bill->bill_number; ?></h1>
-                <div class="bill-date"><?php echo date('d M Y, h:i A', strtotime($bill->created_at)); ?></div>
-            </div>
-        </div>
-
-        <!-- Total Amount - Most Important -->
-        <div class="total-section">
-            <div class="total-label">Total Amount</div>
-            <div class="total-amount"><?php echo $settings['currency_symbol'] . ' ' . number_format($bill->total_amount, 2); ?></div>
-            </div>
-
-        <!-- Simple Action Buttons -->
-        <div class="action-buttons">
-            <a href="<?php echo base_url('billing/edit/' . $bill->id); ?>" class="action-btn">
-                    <i class="fa fa-edit"></i> Edit
+            <div class="bill-actions">
+                <a href="<?php echo base_url('billing/edit/' . $bill->id); ?>" class="action-link">
+                    <i class="fa fa-edit"></i>
                 </a>
-            <a href="<?php echo base_url('billing/pdf/' . $bill->id); ?>" class="action-btn" target="_blank">
-                    <i class="fa fa-download"></i> PDF
+                <a href="<?php echo base_url('billing/pdf/' . $bill->id); ?>" class="action-link" target="_blank">
+                    <i class="fa fa-download"></i>
                 </a>
-            <a href="<?php echo base_url('billing/delete/' . $bill->id); ?>" class="action-btn delete-bill"
-                   data-bill="<?php echo $bill->bill_number; ?>" title="Delete Bill">
-                    <i class="fa fa-trash"></i> Delete
+                <a href="<?php echo base_url('billing/delete/' . $bill->id); ?>" class="action-link delete-bill" data-bill="<?php echo $bill->bill_number; ?>">
+                    <i class="fa fa-trash"></i>
                 </a>
-    </div>
-
-        <!-- Simple Bill Information -->
-        <div class="simple-section">
-            <div class="section-title">Bill Information</div>
-            <div class="info-list">
-                <div class="info-item">
-                    <span class="info-label">Items:</span>
-                    <span class="info-value">
-                            <?php 
-                            // Group items for count
-                            $grouped_for_count = array();
-                            foreach ($bill->items as $item) {
-                                $key = $item->title . '_' . $item->unit_price;
-                                $grouped_for_count[$key] = true;
-                            }
-                            echo count($grouped_for_count); 
-                        ?>
-                        </span>
-                    </div>
-                <div class="info-item">
-                    <span class="info-label">Quantity:</span>
-                    <span class="info-value">
-                            <?php 
-                            // Calculate total quantity
-                            $total_qty = 0;
-                            foreach ($bill->items as $item) {
-                                $total_qty += $item->quantity;
-                            }
-                            echo $total_qty; 
-                            ?> pieces
-                        </span>
-                    </div>
                 </div>
             </div>
 
-        <!-- Simple Customer Information -->
-        <div class="simple-section">
-            <div class="section-title">Customer</div>
-            <div class="info-list">
-                <div class="info-item">
-                    <span class="info-label">Name:</span>
+        <!-- Customer Information -->
+        <div class="customer-info">
+            <div class="info-row">
+                <span class="info-label">Customer:</span>
                     <span class="info-value"><?php echo !empty($bill->customer_name) ? $bill->customer_name : 'Walk-in Customer'; ?></span>
                         </div>
                         <?php if (!empty($bill->customer_phone)): ?>
-                <div class="info-item">
+            <div class="info-row">
                     <span class="info-label">Phone:</span>
                     <span class="info-value"><?php echo $bill->customer_phone; ?></span>
                         </div>
                         <?php endif; ?>
-                </div>
             </div>
 
-            <!-- Quick Actions -->
-        <div class="simple-section">
-            <div class="section-title">Actions</div>
-            <div class="quick-actions">
-                <a href="<?php echo base_url('billing/create'); ?>" class="quick-action-link">
-                    <i class="fa fa-plus"></i> New Bill
-                </a>
-            </div>
-        </div>
-
-        <!-- Simple Items List -->
-        <div class="simple-section">
-            <div class="section-title">Items</div>
-            <div class="items-list">
+        <!-- Items Section -->
+        <div class="items-section">
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th class="item-col">Item Description</th>
+                        <th class="qty-col">Qty</th>
+                        <th class="price-col">Price</th>
+                        <th class="total-col">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
                         <?php
-                        $counter = 1;
-
                         // Group items by title and unit_price
                         $grouped_items = array();
                         foreach ($bill->items as $item) {
@@ -121,307 +67,436 @@
 
                         <?php if (!empty($grouped_items)): ?>
                             <?php foreach ($grouped_items as $index => $item): ?>
-                    <div class="simple-item">
-                        <div class="item-name"><?php echo $item['title']; ?></div>
-                        <div class="item-details-simple">
-                            <span>Qty: <?php echo $item['quantity']; ?></span>
-                            <span>Price: <?php echo $settings['currency_symbol'] . ' ' . number_format($item['unit_price'], 2); ?></span>
-                            <span class="item-total"><?php echo $settings['currency_symbol'] . ' ' . number_format($item['total_price'], 2); ?></span>
-                                </div>
-                            </div>
+                        <tr>
+                            <td class="item-name"><?php echo $item['title']; ?></td>
+                            <td class="item-qty"><?php echo $item['quantity']; ?></td>
+                            <td class="item-price"><?php echo $settings['currency_symbol'] . ' ' . number_format($item['unit_price'], 2); ?></td>
+                            <td class="item-total"><?php echo $settings['currency_symbol'] . ' ' . number_format($item['total_price'], 2); ?></td>
+                        </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
-                    <div class="no-items">No items found</div>
+                        <tr>
+                            <td colspan="4" class="no-items">No items found</td>
+                        </tr>
                     <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Bill Summary -->
+        <div class="bill-summary">
+            <div class="summary-row">
+                <span class="summary-label">Total Items:</span>
+                <?php
+                // Total quantity calculation
+                $total_qty = 0;
+                foreach ($bill->items as $item) {
+                    $total_qty += $item->quantity;
+                }
+                echo '<span style="font-weight:bold;">(' . $total_qty . ' qty)</span>';
+                ?>
+                <span class="summary-value"><?php echo count($grouped_items); ?></span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Total Quantity:</span>
+                <span class="summary-value">
+                    <?php
+                    $total_qty = 0;
+                    foreach ($bill->items as $item) {
+                        $total_qty += $item->quantity;
+                    }
+                    echo $total_qty;
+                    ?>
+                </span>
+            </div>
+        </div>
+
+        <!-- Grand Total -->
+        <div class="grand-total">
+            <div class="total-row">
+                <span class="total-label">GRAND TOTAL</span>
+                <span class="total-amount"><?php echo $settings['currency_symbol'] . ' ' . number_format($bill->total_amount, 2); ?></span>
+            </div>
+            </div>
+
+        <!-- Footer Actions -->
+        <div class="bill-footer">
+            <div class="footer-actions">
+                <a href="<?php echo base_url('billing/create'); ?>" class="footer-btn primary">
+                    <i class="fa fa-plus"></i> New Bill
+                </a>
+                <a href="<?php echo base_url('billing'); ?>" class="footer-btn secondary">
+                    <i class="fa fa-list"></i> All Bills
+                </a>
+            </div>
+            <div class="bill-footer-text">
+                <p>Thank you for your business!</p>
+                <p class="generated-date">Generated on <?php echo date('M d, Y h:i A'); ?></p>
             </div>
         </div>
     </div>
-</div>
 
 <style>
-/* Simple Mobile-First Design with Dark/White Theme */
-.simple-mobile {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 8px;
-    background: #f8f9fa;
-    min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Dark Header */
-.simple-header {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    background: #1a1a1a;
-    color: white;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.back-button {
-    margin-right: 16px;
-}
-
-.back-link {
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 20px;
-    padding: 8px;
-    border-radius: 8px;
-    transition: background-color 0.2s;
-}
-
-.back-link:hover {
-    background: rgba(255,255,255,0.1);
-}
-
-.bill-title h1 {
+/* Professional Bill Design */
+* {
     margin: 0;
-    font-size: 26px;
-    font-weight: 700;
-    color: #ffffff;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.bill-date {
-    font-size: 14px;
-    color: #cccccc;
-    margin-top: 6px;
+body {
+    font-family: 'Courier New', monospace;
+    background: #f5f5f5;
+    color: #333;
+    line-height: 1.4;
 }
 
-/* Total Amount Section - Dark Theme */
-.total-section {
+.bill-container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Bill Header */
+.bill-header {
     background: #2c3e50;
     color: white;
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 20px;
-    text-align: center;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    border: 2px solid #34495e;
-}
-
-.total-label {
-    font-size: 12px;
-    color: #ecf0f1;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-        font-weight: 600;
-}
-
-.total-amount {
-    font-size: 32px;
-    font-weight: 700;
-    color: #ffffff;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-/* Action Buttons - Dark Theme */
-.action-buttons {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
-.action-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 16px 12px;
-    background: #34495e;
-    border: 2px solid #2c3e50;
-    border-radius: 10px;
-    text-decoration: none;
-    color: #ffffff;
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.action-btn:hover {
-    background: #2c3e50;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-}
-
-.action-btn i {
-    font-size: 18px;
-    margin-bottom: 6px;
-}
-
-/* Simple Sections with Dark Accents */
-.simple-section {
-    margin-bottom: 24px;
     padding: 20px;
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    border: 1px solid #e9ecef;
-}
-
-.simple-section:last-child {
-    border-bottom: none;
-}
-
-.section-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #34495e;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-/* Information Lists with Dark Styling */
-.info-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.info-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 16px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #34495e;
+    border-bottom: 2px solid #34495e;
+}
+
+.nav-back {
+    flex: 0 0 auto;
+}
+
+.back-btn {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.back-btn:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.bill-info {
+    flex: 1;
+    text-align: center;
+}
+
+.bill-info h1 {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.shop-address {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+}
+
+.bill-number {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.bill-date {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.bill-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-link {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.action-link:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* Customer Information */
+.customer-info {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    background: #f9f9f9;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
 }
 
 .info-label {
     font-size: 14px;
-    color: #666;
-    font-weight: 600;
+    font-weight: bold;
+    color: #555;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .info-value {
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 600;
     color: #2c3e50;
-    font-weight: 700;
 }
 
-/* Items List with Dark Accents */
-.items-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+/* Items Section */
+.items-section {
+    padding: 20px;
 }
 
-.simple-item {
-    padding: 16px;
-    background: #ffffff;
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transition: all 0.3s ease;
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
 }
 
-.simple-item:hover {
-    border-color: #34495e;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+.items-table th {
+    background: #34495e;
+    color: white;
+    padding: 12px 8px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid #ddd;
+}
+
+.items-table td {
+    padding: 12px 8px;
+    border: 1px solid #ddd;
+    font-size: 13px;
+}
+
+.item-col {
+    width: 50%;
+}
+
+.qty-col, .price-col, .total-col {
+    width: 16.67%;
+    text-align: center;
 }
 
 .item-name {
-    font-size: 17px;
-    font-weight: 700;
+    font-weight: bold;
     color: #2c3e50;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #e9ecef;
-    padding-bottom: 6px;
 }
 
-.item-details-simple {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    color: #666;
-    font-weight: 500;
-}
-
-.item-details-simple span {
-    flex: 1;
+.item-qty, .item-price, .item-total {
     text-align: center;
-    padding: 4px 8px;
-}
-
-.item-total {
-    font-weight: 700;
-    color: #2c3e50;
-    background: #ecf0f1;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 15px;
+    font-weight: 600;
 }
 
 .no-items {
     text-align: center;
     padding: 20px;
     color: #666;
-    font-size: 14px;
+    font-style: italic;
 }
 
-/* Quick Actions with Dark Theme */
-.quick-actions {
-    margin-top: 12px;
+/* Bill Summary */
+.bill-summary {
+    padding: 15px 20px;
+    background: #f8f8f8;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
 }
 
-.quick-action-link {
-    display: inline-flex;
+.summary-row {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
-    padding: 12px 20px;
-    background: #34495e;
-    border: 2px solid #2c3e50;
-    border-radius: 8px;
-    text-decoration: none;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 4px 0;
 }
 
-.quick-action-link:hover {
-    background: #2c3e50;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+.summary-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.quick-action-link i {
-    font-size: 16px;
-}
-
-/* Customer Styling */
-.customer-name {
-    font-weight: 700;
+.summary-value {
+    font-size: 12px;
+    font-weight: bold;
     color: #2c3e50;
-    margin-bottom: 6px;
-    font-size: 16px;
 }
 
-.customer-phone {
-    color: #666;
-    font-size: 14px;
+/* Grand Total */
+.grand-total {
+    padding: 20px;
+    background: #2c3e50;
+    color: white;
+    border-top: 2px solid #34495e;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-label {
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.total-amount {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Bill Footer */
+.bill-footer {
+    padding: 20px;
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+.footer-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.footer-btn {
+    flex: 1;
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s;
+    border: 2px solid transparent;
 }
 
-.customer-phone i {
-    color: #34495e;
+.footer-btn.primary {
+    background: #27ae60;
+    color: white;
+    border-color: #27ae60;
+}
+
+.footer-btn.primary:hover {
+    background: #229954;
+    border-color: #229954;
+}
+
+.footer-btn.secondary {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+.footer-btn.secondary:hover {
+    background: #2980b9;
+    border-color: #2980b9;
+}
+
+.bill-footer-text {
+    text-align: center;
+    color: #666;
+}
+
+.bill-footer-text p {
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.generated-date {
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .bill-container {
+        max-width: 100%;
+        margin: 10px;
+    }
+
+    .bill-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .bill-info h1 {
+        font-size: 24px;
+    }
+
+    .items-table {
+        font-size: 12px;
+    }
+
+    .items-table th,
+    .items-table td {
+        padding: 8px 4px;
+    }
+
+    .footer-actions {
+        flex-direction: column;
+    }
+
+    .total-label {
+        font-size: 16px;
+    }
+
+    .total-amount {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .bill-header {
+        padding: 15px;
+    }
+
+    .bill-info h1 {
+        font-size: 20px;
+    }
+
+    .customer-info,
+    .items-section,
+    .bill-footer {
+        padding: 15px;
+    }
+
+    .grand-total {
+        padding: 15px;
+    }
 }
 </style>
 

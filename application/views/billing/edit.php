@@ -1,18 +1,13 @@
-<!-- Edit Bill Page -->
+<!-- Enhanced Edit Bill Page for Small Shop -->
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Edit Bill - <?php echo $bill->bill_number; ?></h2>
-        <div class="btn-group">
-            <a href="<?php echo base_url('billing/view/' . $bill->id); ?>" class="btn btn-secondary">
-                <i class="fa fa-eye"></i> View Bill
-            </a>
-            <a href="<?php echo base_url('billing'); ?>" class="btn btn-outline-secondary">
-                <i class="fa fa-arrow-left"></i> Back
-            </a>
-        </div>
+        <h2>بل میں ترمیم کریں</h2>
+        <a href="<?php echo base_url('billing/view/' . $bill->id); ?>" class="btn btn-secondary">
+            <i class="fa fa-eye"></i> بل دیکھیں
+        </a>
     </div>
 
-    <?php echo form_open('billing/update/' . $bill->id, ['id' => 'editBillForm']); ?>
+    <?php echo form_open('billing/update/' . $bill->id, ['id' => 'billForm']); ?>
     
     <div class="row">
         <!-- Main Bill Form -->
@@ -20,22 +15,24 @@
             <!-- Customer Info -->
             <div class="card mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">Customer Information</h5>
+                    <h5 class="card-title">کسٹمر کی معلومات</h5>
                     <div class="row">
                         <div class="col-12 position-relative">
-                            <label class="form-label">Customer Name*</label>
-                            <input type="text" class="form-control" id="customer_name" name="customer_name" required
-                                   value="<?php echo set_value('customer_name', $bill->customer_name); ?>">
+                            <label class="form-label">کسٹمر کا نام*</label>
+                            <input type="text" class="form-control" id="customer_name" name="customer_name"
+                                   value="<?php echo htmlspecialchars($bill->customer_name); ?>" required
+                                   placeholder="کسٹمر کا نام درج کریں...">
                             <div id="customer_list" class="list-group mt-1" style="display: none; position: absolute; z-index: 1000; width: 90%;"></div>
                         </div>
                         </div>
 
                     <div class="row mt-3">
-                                                <div class="col-12">
-                            <label class="form-label">Phone Number <small class="text-muted">(اختیاری)</small></label>
+                        <div class="col-12">
+                            <label class="form-label">فون نمبر <small class="text-muted">(اختیاری)</small></label>
                             <input type="tel" class="form-control" id="customer_phone" name="customer_phone"
-                                   value="<?php echo set_value('customer_phone', $bill->customer_phone); ?>"
+                                   value="<?php echo htmlspecialchars($bill->customer_phone); ?>"
                                    placeholder="فون نمبر درج کریں">
+                            <div class="form-text">فون نمبر درج کرنے سے کسٹمر کی پہچان آسان ہوگی</div>
                         </div>
                     </div>
                 </div>
@@ -45,259 +42,103 @@
             <div class="card mb-3">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">Bill Items</h5>
+                        <h5 class="card-title mb-0">بل کے آئیٹمز</h5>
                         <button type="button" class="btn btn-success mobile-add-btn" onclick="addItemRow()">
-                            <i class="fa fa-plus"></i> <span class="d-none d-sm-inline">Add Item</span>
+                            <i class="fa fa-plus"></i> <span class="d-none d-sm-inline">آئیٹم شامل کریں</span>
                         </button>
                     </div>
-
+            
                     <!-- Desktop Table View -->
                     <div class="table-responsive d-none d-md-block">
                         <table class="table table-sm table-bordered">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="45%">Item Name</th>
-                                    <th width="15%">Quantity</th>
-                                    <th width="20%">Unit Price (<?php echo $settings['currency_symbol']; ?>)</th>
-                                    <th width="15%">Total (<?php echo $settings['currency_symbol']; ?>)</th>
-                                    <th width="5%">Action</th>
+                                    <th width="45%">آئیٹم کا نام</th>
+                                    <th width="15%">تعداد</th>
+                                    <th width="20%">فی یونٹ قیمت (PKR)</th>
+                                    <th width="15%">کل (PKR)</th>
+                                    <th width="5%">ایکشن</th>
                                 </tr>
                             </thead>
                             <tbody id="items_table_desktop">
-                                <?php if (!empty($bill->items)): ?>
-                                    <?php foreach ($bill->items as $index => $item): ?>
-                                    <tr class="item-row" data-index="<?php echo $index; ?>">
-                                        <td>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control form-control-sm item-search"
-                                                       name="item_name[]" value="<?php echo set_value('item_name[' . $index . ']', $item->title); ?>"
-                                                       placeholder="Type item name..." onfocus="openItemSearchModal(this)" required>
-                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
-                                                    <i class="fa fa-search"></i>
-                                                </button>
-                                            </div>
-                                            <input type="hidden" class="item-id" name="item_id[]">
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control form-control-sm quantity"
-                                                   name="quantity[]" value="<?php echo set_value('quantity[' . $index . ']', $item->quantity); ?>"
-                                                   min="1" onchange="calculateRowTotal(this)" required>
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control form-control-sm unit-price"
-                                                   name="unit_price[]" value="<?php echo set_value('unit_price[' . $index . ']', $item->unit_price); ?>"
-                                                   step="0.01" min="0.01" placeholder="0.00" onchange="calculateRowTotal(this)" required>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control form-control-sm row-total" readonly placeholder="0.00">
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)" title="Remove Item">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <tr class="item-row" data-index="0">
-                                        <td>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control form-control-sm item-search"
-                                                       name="item_name[]" placeholder="Type item name..." onfocus="openItemSearchModal(this)" required>
-                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
-                                                    <i class="fa fa-search"></i>
-                                                </button>
-                                            </div>
-                                            <input type="hidden" class="item-id" name="item_id[]">
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control form-control-sm quantity"
-                                                   name="quantity[]" value="1" min="1" onchange="calculateRowTotal(this)" required>
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control form-control-sm unit-price"
-                                                   name="unit_price[]" step="0.01" min="0.01" placeholder="0.00" onchange="calculateRowTotal(this)" required>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control form-control-sm row-total" readonly placeholder="0.00">
-                                        </td>
-                                        <td>
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)" title="Remove Item">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
+                                <!-- Desktop items will be added here dynamically -->
                             </tbody>
                         </table>
                     </div>
 
                     <!-- Mobile Card View -->
                     <div id="items_container_mobile" class="d-md-none">
-                        <?php if (!empty($bill->items)): ?>
-                            <?php foreach ($bill->items as $index => $item): ?>
-                            <div class="mobile-item-card card mb-3 item-row" data-index="<?php echo $index; ?>" style="border-left: 4px solid #20c997">
-                                <div class="card-body p-3">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h6 class="card-title mb-0 text-primary">Item #<?php echo $index + 1; ?></h6>
-                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMobileCard(this)">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold">Item Name *</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control item-search"
-                                                   name="item_name[]" value="<?php echo set_value('item_name[' . $index . ']', $item->title); ?>"
-                                                   placeholder="Type item name..." onfocus="openItemSearchModal(this)" required>
-                                            <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
-                                                <i class="fa fa-search"></i>
-                                            </button>
-                                        </div>
-                                        <input type="hidden" class="item-id" name="item_id[]">
-                                    </div>
-
-                                    <div class="row g-2">
-                                        <div class="col-4">
-                                            <label class="form-label small fw-bold">Quantity *</label>
-                                            <input type="number" class="form-control quantity"
-                                                   name="quantity[]" value="<?php echo set_value('quantity[' . $index . ']', $item->quantity); ?>"
-                                                   min="1" onchange="calculateRowTotal(this)" required>
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="form-label small fw-bold">Price *</label>
-                                            <input type="number" class="form-control unit-price"
-                                                   name="unit_price[]" value="<?php echo set_value('unit_price[' . $index . ']', $item->unit_price); ?>"
-                                                   step="0.01" min="0.01" placeholder="0.00" onchange="calculateRowTotal(this)" required>
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="form-label small fw-bold">Total</label>
-                                            <input type="text" class="form-control row-total fw-bold text-success" readonly placeholder="0.00">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="mobile-item-card card mb-3 item-row" data-index="0" style="border-left: 4px solid #20c997">
-                                <div class="card-body p-3">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h6 class="card-title mb-0 text-primary">Item #1</h6>
-                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMobileCard(this)">
-                                            <i class="fa fa-trash"></i>
-                                        </button>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label small fw-bold">Item Name *</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control item-search"
-                                                   name="item_name[]" placeholder="Type item name..." onfocus="openItemSearchModal(this)" required>
-                                            <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
-                                                <i class="fa fa-search"></i>
-                                            </button>
-                                        </div>
-                                        <input type="hidden" class="item-id" name="item_id[]">
-                                    </div>
-
-                                    <div class="row g-2">
-                                        <div class="col-4">
-                                            <label class="form-label small fw-bold">Quantity *</label>
-                                            <input type="number" class="form-control quantity"
-                                                   name="quantity[]" value="1" min="1" onchange="calculateRowTotal(this)" required>
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="form-label small fw-bold">Price *</label>
-                                            <input type="number" class="form-control unit-price"
-                                                   name="unit_price[]" step="0.01" min="0.01" placeholder="0.00" onchange="calculateRowTotal(this)" required>
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="form-label small fw-bold">Total</label>
-                                            <input type="text" class="form-control row-total fw-bold text-success" readonly placeholder="0.00">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
+                        <!-- Mobile items will be added here dynamically -->
                     </div>
 
                     <!-- Add Item Button for Mobile -->
                     <div class="text-center d-md-none mt-3">
                         <button type="button" class="btn btn-success btn-lg w-100" onclick="addItemRow()">
-                            <i class="fa fa-plus-circle fa-lg"></i> Add New Item
+                            <i class="fa fa-plus-circle fa-lg"></i> نیا آئیٹم شامل کریں
                         </button>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Bill Summary -->
-        <div class="col-12 col-lg-4">
+            <!-- Total Section -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Bill Summary</h5>
-
-                    <div class="summary-item">
-                        <span>Bill Number:</span>
-                        <strong><?php echo $bill->bill_number; ?></strong>
-                    </div>
-
-                    <div class="summary-item">
-                        <span>Date:</span>
-                        <strong><?php echo date('d M Y', strtotime($bill->created_at)); ?></strong>
-                    </div>
-
-                    <hr>
-
-                    <div class="summary-item">
-                        <span>Total Items:</span>
-                        <span id="totalItems"><?php echo count($bill->items); ?></span>
-                    </div>
-
-                    <div class="summary-item total-amount">
-                        <span>Grand Total:</span>
-                        <strong id="grandTotal"><?php echo $settings['currency_symbol']; ?> <?php echo number_format($bill->total_amount, 2); ?></strong>
-                    </div>
-
-                    <hr>
-
-                    <div class="d-none d-md-block">
-                        <button type="submit" class="btn btn-success w-100 btn-lg">
-                            <i class="fa fa-save"></i> Update Bill
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <?php echo form_close(); ?>
-
-    <!-- Mobile Update Button (Bottom) - Only visible on mobile -->
-    <div class="d-md-none">
-        <div class="fixed-bottom-mobile-btn">
-            <div class="container-fluid px-3 py-2">
-                <div class="row">
-                    <div class="col-12">
-                        <button type="submit" form="editBillForm" class="btn btn-success w-100 shadow-sm"
-                                style="border-radius: 8px; padding: 0.75rem 1rem; font-weight: 500; font-size: 1rem;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <i class="fa fa-save me-2"></i>
-                                    <span>Update Bill</span>
-                                </div>
-                                <div class="fw-bold text-white-50" id="mobileGrandTotal" style="font-size: 0.9rem;">
-                                    <?php echo $settings['currency_symbol']; ?> <?php echo number_format($bill->total_amount, 2); ?>
-                                </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="alert alert-success">
+                                <small><i class="fa fa-check-circle"></i> 
+                                <strong>نوٹ:</strong> بل بننے کے بعد پرنٹ کر سکتے ہیں۔</small>
                             </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-end">
+                                <h4 class="text-primary">کل رقم: <span id="grand_total">PKR 0.00</span></h4>
+                                <input type="hidden" id="total_amount" name="total_amount" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 text-end">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fa fa-save"></i> بل اپ ڈیٹ کریں
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Quick Tips Sidebar -->
+        <div class="col-12 col-lg-4">
+            
+            <!-- Bill Summary -->
+            <!-- <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">بل کا خلاصہ</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="text-center">
+                                <div class="fw-bold text-primary" id="item_count">0</div>
+                                <small class="text-muted">کل آئیٹمز</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <div class="fw-bold text-success" id="total_quantity">0</div>
+                                <small class="text-muted">کل تعداد</small>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <div class="fw-bold fs-5 text-danger" id="summary_total">PKR 0.00</div>
+                        <small class="text-muted">کل رقم</small>
+                    </div>
+                </div>
+            </div> -->
+        </div>
     </div>
+
+    <?php echo form_close(); ?>
 
     <!-- Item Search Modal -->
     <div class="modal fade" id="itemSearchModal" tabindex="-1" aria-labelledby="itemSearchModalLabel" aria-hidden="true">
@@ -305,7 +146,7 @@
             <div class="modal-content">
                 <div class="modal-header  text-white" style="background-color: #20c997;">
                     <h5 class="modal-title" id="itemSearchModalLabel">
-                        <i class="fa fa-search me-2"></i>Search Items
+                        <i class="fa fa-search me-2"></i>آئیٹم تلاش کریں
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -314,7 +155,7 @@
                     <div class="p-3 border-bottom bg-light">
                         <div class="input-group">
                             <span class="input-group-text"><i class="fa fa-search"></i></span>
-                            <input type="text" class="form-control" id="modalSearchInput" placeholder="Type item name, SKU or price...">
+                            <input type="text" class="form-control" id="modalSearchInput" placeholder="آئیٹم کا نام، SKU یا قیمت لکھیں...">
                             <button type="button" class="btn btn-outline-secondary" onclick="clearModalSearch()">
                                 <i class="fa fa-times"></i>
                             </button>
@@ -326,13 +167,13 @@
                         <!-- Items will be loaded here -->
                         <div class="text-center p-4 text-muted">
                             <i class="fa fa-search fa-2x mb-2"></i>
-                            <p>Type to search items</p>
+                            <p>تلاش کرنے کے لیے ٹائپ کریں</p>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fa fa-times me-1"></i>Cancel
+                        <i class="fa fa-times me-1"></i>منسوخ کریں
                     </button>
                 </div>
             </div>
@@ -340,442 +181,15 @@
     </div>
 </div>
 
-<style>
-/* Item Search Modal Styles */
-#itemSearchModal .modal-dialog {
-    max-width: 600px;
-}
-
-#itemSearchModal .list-group-item {
-    border-left: none;
-    border-right: none;
-    transition: all 0.2s ease;
-}
-
-#itemSearchModal .list-group-item:hover {
-    background-color: #f8f9fa;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-#itemSearchModal .item-modal-option {
-    cursor: pointer;
-    padding: 1rem;
-}
-
-#itemSearchModal .select-item-btn {
-    min-width: 80px;
-}
-
-#itemSearchModal .spinner-border {
-    width: 2rem;
-    height: 2rem;
-}
-
-.table-bordered td {
-    vertical-align: middle;
-}
-
-.item-row input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.summary-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.total-amount {
-    font-size: 1.2em;
-    border-top: 2px solid #dee2e6;
-    padding-top: 10px;
-    margin-top: 10px;
-}
-
-/* Enhanced Mobile-specific styles */
-@media (max-width: 767.98px) {
-    /* Page Layout */
-    .container-fluid {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-
-    /* Header */
-    .d-flex.justify-content-between {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: stretch !important;
-    }
-
-    .d-flex.justify-content-between h2 {
-        font-size: 1.5rem;
-        margin-bottom: 0;
-    }
-
-    /* Customer Section */
-    .card-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    /* Form Controls */
-    .form-control {
-        font-size: 1rem;
-        padding: 0.75rem 1rem;
-        border-radius: 0.5rem;
-        border: 2px solid #e9ecef;
-        transition: border-color 0.15s ease-in-out;
-    }
-
-    .form-control:focus {
-        border-color: #20c997;
-        box-shadow: 0 0 0 0.2rem rgba(32, 201, 151, 0.15);
-    }
-
-    .form-label {
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-        color: #495057;
-    }
-
-    /* Mobile Item Cards */
-    .mobile-item-card {
-        border: none;
-        border-radius: 0.75rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 1rem;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .mobile-item-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .mobile-item-card .card-body {
-        padding: 1rem;
-    }
-
-    .mobile-item-card .card-title {
-        font-size: 1rem;
-        color: #20c997;
-        margin-bottom: 1rem;
-    }
-
-    /* Buttons */
-    .btn {
-        min-height: 48px;
-        font-size: 1rem;
-        font-weight: 500;
-        border-radius: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        transition: all 0.2s ease;
-    }
-
-    .btn-success {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        border: none;
-        font-size: 1.1rem;
-        padding: 1rem 2rem;
-        margin-top: 1rem;
-        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
-    }
-
-    .btn-success:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
-    }
-
-    .btn-danger {
-        background: #dc3545;
-        border: none;
-    }
-
-    .btn-outline-danger {
-        border: 2px solid #dc3545;
-        color: #dc3545;
-        background: transparent;
-    }
-
-    .btn-outline-danger:hover {
-        background: #dc3545;
-        color: white;
-    }
-
-    /* Add Item Button */
-    .mobile-add-btn {
-        display: none;
-    }
-
-    /* Total Section */
-    .text-end {
-        text-align: center !important;
-    }
-
-    .text-end h4 {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
-
-    /* Sidebar */
-    .col-12.col-lg-4 {
-        order: -1;
-        margin-bottom: 2rem;
-    }
-
-    .col-12.col-lg-4 .card {
-        border-radius: 0.75rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    /* Number inputs */
-    input[type="number"] {
-        -webkit-appearance: none;
-        -moz-appearance: textfield;
-    }
-
-    input[type="number"]::-webkit-outer-spin-button,
-    input[type="number"]::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    /* Modal Enhancements for Mobile */
-    #itemSearchModal .modal-dialog {
-        margin: 1rem;
-        max-width: none;
-    }
-
-    #itemSearchModal .modal-content {
-        border-radius: 12px;
-        border: none;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-
-    #itemSearchModal .modal-header {
-        border-radius: 12px 12px 0 0;
-        padding: 1rem 1.5rem;
-    }
-
-    #itemSearchModal .modal-body {
-        padding: 0;
-    }
-
-    #itemSearchModal .list-group-item {
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        margin: 0.25rem 0.5rem;
-    }
-
-    /* Enhanced touch targets for mobile */
-    #itemSearchModal .select-item-btn {
-        min-height: 36px;
-        padding: 0.375rem 0.75rem;
-        font-size: 0.875rem;
-    }
-
-    /* Fix positioning for customer suggestions on mobile */
-    #customer_list {
-        position: absolute !important;
-        top: 100% !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        max-width: none !important;
-        z-index: 1050 !important;
-        background: white !important;
-        border: 1px solid #dee2e6 !important;
-        border-radius: 0.375rem !important;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-        max-height: 200px !important;
-        overflow-y: auto !important;
-    }
-
-    /* Mobile customer suggestion items */
-    .customer-suggestion-item {
-        min-height: 48px !important;
-        padding: 12px 16px !important;
-        font-size: 16px !important; /* Prevent zoom on iOS */
-        display: block !important;
-        text-decoration: none !important;
-        color: inherit !important;
-    }
-
-    .customer-suggestion-item:hover {
-        background-color: #f8f9fa !important;
-        text-decoration: none !important;
-        color: inherit !important;
-    }
-
-    /* Loading states */
-    .btn:disabled {
-        opacity: 0.6;
-    }
-
-    /* Focus states for accessibility */
-    .btn:focus,
-    .form-control:focus {
-        outline: none;
-    }
-
-    /* Spacing improvements */
-    .card-body {
-        padding: 1.25rem;
-    }
-
-    .mb-3 {
-        margin-bottom: 1rem !important;
-    }
-
-    /* Improve readability */
-    body {
-        font-size: 1rem;
-        line-height: 1.5;
-    }
-
-    /* Mobile Fixed Bottom Button */
-    .fixed-bottom-mobile-btn {
-        position: fixed;
-        bottom: 40px;
-        left: 15px;
-        right: 15px;
-        background: rgba(255,255,255,0.95);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(0,0,0,0.1);
-        border-radius: 10px;
-        z-index: 1020;
-        padding-bottom: env(safe-area-inset-bottom, 0);
-        box-shadow: 0 2px 20px rgba(0,0,0,0.15);
-    }
-
-    /* Prevent content from being hidden behind fixed button - Mobile only */
-    @media (max-width: 767.98px) {
-        body {
-            padding-bottom: 30px;
-        }
-    }
-
-    /* Enhanced mobile button styling */
-    .fixed-bottom-mobile-btn .btn-success {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        border: none;
-        transition: all 0.2s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .fixed-bottom-mobile-btn .btn-success:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-    }
-
-    .fixed-bottom-mobile-btn .btn-success:active {
-        transform: translateY(0);
-        transition: all 0.1s ease;
-    }
-
-    /* Mobile total display in button */
-    #mobileGrandTotal {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: rgba(255,255,255,0.8);
-    }
-
-    /* Ensure modal appears above fixed button */
-    .modal {
-        z-index: 1030;
-    }
-
-    /* Adjust modal backdrop for mobile */
-    .modal-backdrop {
-        z-index: 1025;
-    }
-
-    /* Smooth transitions for mobile button */
-    .fixed-bottom-mobile-btn {
-        transition: transform 0.3s ease;
-    }
-
-    /* Hide mobile button when modal is open */
-    .modal-open .fixed-bottom-mobile-btn {
-        transform: translateY(100%);
-    }
-}
-
-/* Extra small screens */
-@media (max-width: 575.98px) {
-    .container-fluid {
-        padding-left: 8px;
-        padding-right: 8px;
-    }
-
-    .mobile-item-card .card-body {
-        padding: 0.75rem;
-    }
-
-    .form-control {
-        font-size: 1rem;
-        padding: 0.625rem 0.875rem;
-    }
-
-    .btn {
-        min-height: 44px;
-        font-size: 0.95rem;
-    }
-
-    /* Smaller text on very small screens */
-    .card-title {
-        font-size: 1rem;
-    }
-
-    .form-label {
-        font-size: 0.85rem;
-    }
-
-    /* Adjust mobile card spacing */
-    .mobile-item-card {
-        margin-bottom: 0.75rem;
-    }
-}
-
-/* Form validation styles */
-.form-control.is-valid {
-    border-color: #28a745;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73 4.89-4.89-1.42-1.42L1.89 5.3l-1.42-1.42L-.3 5.3z'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-}
-
-.form-control.is-invalid {
-    border-color: #dc3545;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-}
-
-/* Customer selection feedback */
-.customer-selected {
-    background-color: #d4edda !important;
-    border-color: #28a745 !important;
-    transition: all 0.3s ease;
-}
-
-.customer-selected::placeholder {
-    color: #28a745 !important;
-}
-</style>
-
 <script>
-let itemIndex = <?php echo count($bill->items); ?>;
-const currency = '<?php echo $settings['currency_symbol']; ?>';
+let itemIndex = 0;
+const currency = 'PKR';
 
 // Initialize on page load
 $(document).ready(function() {
+    // Load existing bill items
+    loadExistingItems();
+
     // Mobile-specific enhancements
     if ($(window).width() < 768) {
         // Improve mobile UX
@@ -801,40 +215,30 @@ $(document).ready(function() {
 
     // Initial calculation on page load
     setTimeout(() => {
-        // Calculate totals for existing items
-        $('.item-row').each(function() {
-            const quantityInput = $(this).find('.quantity')[0];
-            if (quantityInput) {
-                calculateRowTotal(quantityInput);
-            }
-        });
         calculateGrandTotal();
         updateSummary();
     }, 200);
-
-    // Add event listeners for quantity and price changes
-    $(document).on('input change', '.quantity, .unit-price', function() {
-        console.log('Quantity/Price changed, recalculating...');
-        calculateRowTotal(this);
-    });
-
-    // Add event listener for item selection from modal
-    $(document).on('itemSelected', function() {
-        console.log('Item selected, recalculating...');
-        setTimeout(() => {
-            calculateGrandTotal();
-            updateSummary();
-        }, 100);
-    });
-    
 });
+
+// Load existing bill items
+function loadExistingItems() {
+    const existingItems = <?php echo json_encode($bill->items); ?>;
+
+    existingItems.forEach((item, index) => {
+        addExistingItemRow(item, index);
+    });
+}
 
 // Function to handle responsive layout changes
 function handleResponsiveLayout() {
     if ($(window).width() >= 768) {
-        // Desktop: ensure desktop layout is active
-        $('.d-none.d-md-block').show();
-        $('#items_container_mobile').hide();
+        // Desktop: move items from mobile to desktop if needed
+        const mobileItems = $('.mobile-item-card');
+        if (mobileItems.length > 0 && $('#items_table_desktop tr.item-row').length === 0) {
+            // Convert mobile cards to desktop rows (optional - for now just ensure proper display)
+            $('.d-none.d-md-block').show();
+            $('#items_container_mobile').hide();
+        }
     } else {
         // Mobile: ensure mobile layout is active
         $('.d-none.d-md-block').hide();
@@ -942,6 +346,24 @@ function selectCustomer(name, phone) {
     }, 2000);
 }
 
+// Auto-validate phone when customer name is typed
+$('#customer_phone').on('blur', function() {
+    const phone = $(this).val().trim();
+    const name = $('#customer_name').val().trim();
+
+    if (phone && name) {
+        // Check if customer exists with this phone (no format validation)
+        $.get('<?php echo base_url("billing/get_customer_details"); ?>', { phone: phone }, function(data) {
+            const customer = JSON.parse(data);
+            if (customer && customer.name !== name) {
+                if (confirm(`Phone number ${phone} belongs to ${customer.name}. Update name?`)) {
+                    $('#customer_name').val(customer.name);
+                }
+            }
+        });
+    }
+});
+
 // Enhanced Item Management for Desktop and Mobile
 function addItemRow() {
     // Desktop Table Row
@@ -950,8 +372,8 @@ function addItemRow() {
             <td>
                 <div class="input-group">
                     <input type="text" class="form-control form-control-sm item-search"
-                           name="item_name[]" placeholder="Type item name..."
-                           onfocus="openItemSearchModal(this)" required>
+                           name="item_name[]" placeholder="آئیٹم کا نام لکھیں..."
+                           onfocus="openItemSearchModal(this)" readonly required>
                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
                         <i class="fa fa-search"></i>
                     </button>
@@ -964,14 +386,14 @@ function addItemRow() {
             </td>
             <td>
                 <input type="number" class="form-control form-control-sm unit-price"
-                       name="unit_price[]" step="0.01" min="0.01" placeholder="0.00"
+                       name="unit_price[]" step="0.01" min="0.01" placeholder="قیمت درج کریں"
                        onchange="calculateRowTotal(this)" required>
             </td>
             <td>
                 <input type="text" class="form-control form-control-sm row-total" readonly placeholder="0.00">
             </td>
             <td>
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)" title="Remove Item">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)" title="آئیٹم ہٹائیں">
                     <i class="fa fa-trash"></i>
                 </button>
             </td>
@@ -980,21 +402,21 @@ function addItemRow() {
 
     // Mobile Card Layout
     const mobileCard = `
-        <div class="mobile-item-card card mb-3 item-row" data-index="${itemIndex}" style="border-left: 4px solid #20c997">
+        <div class="mobile-item-card card mb-3 item-row" data-index="${itemIndex}" style="border-left: 4px solid #20c997 ">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="card-title mb-0 text-primary">Item #${itemIndex + 1}</h6>
+                    <h6 class="card-title mb-0 text-primary">آئیٹم #${itemIndex + 1}</h6>
                     <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMobileCard(this)">
                         <i class="fa fa-trash"></i>
                     </button>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">Item Name *</label>
+                    <label class="form-label small fw-bold">آئیٹم کا نام *</label>
                     <div class="input-group">
                         <input type="text" class="form-control item-search"
-                               name="item_name[]" placeholder="Type item name..."
-                               onfocus="openItemSearchModal(this)" required>
+                               name="item_name[]" placeholder="آئیٹم کا نام لکھیں..."
+                               onfocus="openItemSearchModal(this)" readonly required>
                         <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
                             <i class="fa fa-search"></i>
                         </button>
@@ -1004,18 +426,18 @@ function addItemRow() {
 
                 <div class="row g-2">
                     <div class="col-4">
-                        <label class="form-label small fw-bold">Quantity *</label>
+                        <label class="form-label small fw-bold">تعداد *</label>
                         <input type="number" class="form-control quantity"
                                name="quantity[]" value="1" min="1" onchange="calculateRowTotal(this)" required>
                     </div>
                     <div class="col-4">
-                        <label class="form-label small fw-bold">Price *</label>
+                        <label class="form-label small fw-bold">قیمت *</label>
                         <input type="number" class="form-control unit-price"
                                name="unit_price[]" step="0.01" min="0.01" placeholder="0.00"
                                onchange="calculateRowTotal(this)" required>
                     </div>
                     <div class="col-4">
-                        <label class="form-label small fw-bold">Total</label>
+                        <label class="form-label small fw-bold">کل رقم</label>
                         <input type="text" class="form-control row-total fw-bold text-success" readonly placeholder="0.00">
                     </div>
                 </div>
@@ -1036,11 +458,102 @@ function addItemRow() {
     // Trigger initial calculation for new row
     setTimeout(() => {
         calculateGrandTotal();
-        // Also trigger row calculation for the new row
-        const newRow = $(window).width() >= 768 ? $('#items_table_desktop tr:last .quantity')[0] : $('#items_container_mobile .mobile-item-card:last .quantity')[0];
-        if (newRow) {
-            calculateRowTotal(newRow);
-        }
+    }, 50);
+}
+
+// Add existing item row
+function addExistingItemRow(item, index) {
+    // Desktop Table Row
+    const desktopRow = `
+        <tr class="item-row existing-item" data-index="${itemIndex}" data-item-id="${item.item_id}">
+            <td>
+                <div class="input-group">
+                    <input type="text" class="form-control form-control-sm item-search"
+                           name="item_name[]" value="${item.title}"
+                           onfocus="openItemSearchModal(this)" readonly required>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+                <input type="hidden" class="item-id" name="item_id[]" value="${item.item_id}">
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm quantity"
+                       name="quantity[]" value="${item.quantity}" min="1" onchange="calculateRowTotal(this)" required>
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm unit-price"
+                       name="unit_price[]" value="${item.unit_price}" step="0.01" min="0.01" placeholder="قیمت درج کریں"
+                       onchange="calculateRowTotal(this)" required>
+            </td>
+            <td>
+                <input type="text" class="form-control form-control-sm row-total" readonly placeholder="0.00">
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)" title="آئیٹم ہٹائیں">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+
+    // Mobile Card Layout
+    const mobileCard = `
+        <div class="mobile-item-card card mb-3 item-row existing-item" data-index="${itemIndex}" data-item-id="${item.item_id}" style="border-left: 4px solid #20c997 ">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="card-title mb-0 text-primary">آئیٹم #${itemIndex + 1}</h6>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMobileCard(this)">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">آئیٹم کا نام *</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control item-search"
+                               name="item_name[]" value="${item.title}"
+                               onfocus="openItemSearchModal(this)" readonly required>
+                        <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" class="item-id" name="item_id[]" value="${item.item_id}">
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-4">
+                        <label class="form-label small fw-bold">تعداد *</label>
+                        <input type="number" class="form-control quantity"
+                               name="quantity[]" value="${item.quantity}" min="1" onchange="calculateRowTotal(this)" required>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small fw-bold">قیمت *</label>
+                        <input type="number" class="form-control unit-price"
+                               name="unit_price[]" value="${item.unit_price}" step="0.01" min="0.01" placeholder="0.00"
+                               onchange="calculateRowTotal(this)" required>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small fw-bold">کل رقم</label>
+                        <input type="text" class="form-control row-total fw-bold text-success" readonly placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add to appropriate container based on screen size
+    if ($(window).width() >= 768) {
+        $('#items_table_desktop').append(desktopRow);
+    } else {
+        $('#items_container_mobile').append(mobileCard);
+    }
+
+    itemIndex++;
+
+    // Trigger initial calculation for new row
+    setTimeout(() => {
+        calculateGrandTotal();
     }, 50);
 }
 
@@ -1076,9 +589,9 @@ function loadAllItemsForModal() {
     $('#modalItemsList').html(`
         <div class="text-center p-4">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">لوڈ ہو رہا ہے...</span>
             </div>
-            <p class="mt-2 text-muted">Loading items...</p>
+            <p class="mt-2 text-muted">آئیٹمز لوڈ ہو رہی ہیں...</p>
         </div>
     `);
 
@@ -1088,10 +601,10 @@ function loadAllItemsForModal() {
             showModalWithItems(allItems);
         } catch (e) {
             console.error('Error parsing items data:', e);
-            showModalError('Error loading items');
+            showModalError('آئیٹمز لوڈ کرنے میں خرابی');
         }
     }).fail(function() {
-        showModalError('Server connection failed');
+        showModalError('سرور سے رابطہ نہیں ہو سکا');
     });
 }
 
@@ -1101,7 +614,7 @@ function showModalWithItems(items) {
         $('#modalItemsList').html(`
             <div class="text-center p-4 text-muted">
                 <i class="fa fa-box-open fa-2x mb-2"></i>
-                <p>No items available</p>
+                <p>کوئی آئیٹم دستیاب نہیں</p>
             </div>
         `);
         return;
@@ -1121,10 +634,10 @@ function showModalWithItems(items) {
                         <small class="text-muted">SKU: ${item.sku}</small>
                     </div>
                     <div class="text-end">
-                        <div class="fw-bold text-success">${currency} ${item.price}</div>
-                        <button type="button" class="btn btn-sm mt-1 select-item-btn" style="background-color: #20c997;"
+                        <div class="fw-bold text-success">PKR ${item.price}</div>
+                        <button type="button" class="btn  btn-sm mt-1 select-item-btn" style="background-color: #20c997;"
                                 onclick="selectItemFromModal('${item.id}', '${item.title.replace(/'/g, "\\'")}', '${item.price}')">
-                            <i class="fa fa-check me-1"></i>Select
+                            <i class="fa fa-check me-1"></i>منتخب کریں
                         </button>
                     </div>
                 </div>
@@ -1165,8 +678,8 @@ $('#modalSearchInput').on('input', function() {
                 $('#modalItemsList').html(`
                     <div class="text-center p-4 text-muted">
                         <i class="fa fa-search fa-2x mb-2"></i>
-                        <p>No results found for "${query}"</p>
-                        <small>Try item name, SKU or price</small>
+                        <p>"${query}" کے لیے کوئی نتیجہ نہیں ملا</p>
+                        <small>آئیٹم کا نام، SKU یا قیمت چیک کریں</small>
                     </div>
                 `);
             }
@@ -1235,8 +748,6 @@ function selectItemFromModal(id, title, price) {
     setTimeout(() => {
         calculateGrandTotal();
         updateSummary();
-        // Trigger custom event for additional listeners
-        $(document).trigger('itemSelected');
     }, 100);
 }
 
@@ -1250,9 +761,21 @@ function showModalError(message) {
     `);
 }
 
+// Removed old selectExistingItem function - now using modal approach
+
+// Mobile-specific enhancements
+$(document).ready(function() {
+    // Add mobile-specific classes and enhancements
+    if ($(window).width() < 768) {
+        $('.card').addClass('mb-3');
+        $('.btn').addClass('w-100 mb-2');
+        $('.form-control').addClass('mb-2');
+    }
+});
+
 // Calculate Functions
 function calculateRowTotal(element) {
-    console.log('Calculating row total for element:', element);
+    console.log('Calculating row total for element:', element); // Debug log
 
     // Handle both desktop table rows and mobile cards
     let itemContainer;
@@ -1281,23 +804,16 @@ function calculateRowTotal(element) {
     const qty = parseFloat(itemContainer.find('.quantity').val()) || 0;
     const price = parseFloat(itemContainer.find('.unit-price').val()) || 0;
     const total = qty * price;
+    
+    console.log('Calculation values:', { qty, price, total }); // Debug log
 
-    console.log('Calculation values:', { qty, price, total });
-
-    // Update the row total field
     itemContainer.find('.row-total').val(total.toFixed(2));
-
-    // Also update display for mobile cards
-    if (itemContainer.hasClass('mobile-item-card')) {
-        itemContainer.find('.row-total').text(total.toFixed(2));
-    }
-
     calculateGrandTotal();
     updateSummary();
 }
 
 function calculateGrandTotal() {
-    console.log('Calculating grand total...');
+    console.log('Calculating grand total...'); // Debug log
     let total = 0;
     let itemCount = 0;
 
@@ -1306,41 +822,37 @@ function calculateGrandTotal() {
         const price = parseFloat($(this).find('.unit-price').val()) || 0;
         const itemTotal = qty * price;
 
-        // Only count items that have both quantity and price > 0
-        if (qty > 0 && price > 0) {
-            total += itemTotal;
-            itemCount++;
-        }
+        console.log(`Item ${index + 1}: qty=${qty}, price=${price}, itemTotal=${itemTotal}`); // Debug log
 
-        console.log(`Item ${index + 1}: qty=${qty}, price=${price}, itemTotal=${itemTotal}, valid=${qty > 0 && price > 0}`);
+        total += itemTotal;
+        itemCount++;
     });
 
-    console.log(`Grand total calculation: ${itemCount} valid items, total=${total}`);
+    console.log(`Grand total calculation: ${itemCount} items, total=${total}`); // Debug log
+    
+    $('#grand_total').text(currency + ' ' + total.toFixed(2));
+    $('#summary_total').text(currency + ' ' + total.toFixed(2));
+    $('#total_amount').val(total.toFixed(2));
 
-    // Update the grand total display
-    $('#grandTotal').html('<strong>' + currency + ' ' + total.toFixed(2) + '</strong>');
-
-    // Update mobile bottom button total as well
-    $('#mobileGrandTotal').text(currency + ' ' + total.toFixed(2));
-
-    console.log('Grand total updated to:', total.toFixed(2));
+    console.log('Grand total updated to:', total.toFixed(2)); // Debug log
 }
 
 function updateSummary() {
     let itemCount = 0;
     let totalQty = 0;
-
+    
     $('.item-row').each(function() {
         const itemName = $(this).find('.item-search').val().trim();
         const qty = parseInt($(this).find('.quantity').val()) || 0;
-
+        
         if (itemName) {
             itemCount++;
             totalQty += qty;
         }
     });
-
-    $('#totalItems').text(itemCount);
+    
+    $('#item_count').text(itemCount);
+    $('#total_quantity').text(totalQty);
 }
 
 function removeRow(button) {
@@ -1349,7 +861,7 @@ function removeRow(button) {
         calculateGrandTotal();
         updateSummary();
     } else {
-        alert('At least one item is required');
+        alert('کم از کم ایک آئیٹم ضروری ہے');
     }
 }
 
@@ -1359,7 +871,7 @@ function removeMobileCard(button) {
         calculateGrandTotal();
         updateSummary();
     } else {
-        alert('At least one item is required');
+        alert('کم از کم ایک آئیٹم ضروری ہے');
     }
 }
 
@@ -1371,7 +883,7 @@ $(document).on('click', function(e) {
 });
 
 // Enhanced Form Validation for Mobile and Desktop
-$('#editBillForm').on('submit', function(e) {
+$('#billForm').on('submit', function(e) {
     let hasValidItems = false;
     let hasEmptyPrice = false;
 
@@ -1393,9 +905,9 @@ $('#editBillForm').on('submit', function(e) {
         e.preventDefault();
         if ($(window).width() < 768) {
             // Mobile alert with better styling
-            showMobileAlert('Please add at least one valid item', 'warning');
+            showMobileAlert('براہ کرم کم از کم ایک آئیٹم کی تفصیلات درج کریں', 'warning');
         } else {
-            alert('Please add at least one valid item');
+        alert('براہ کرم کم از کم ایک آئیٹم کی تفصیلات درج کریں');
         }
         return false;
     }
@@ -1403,9 +915,9 @@ $('#editBillForm').on('submit', function(e) {
     if (hasEmptyPrice) {
         e.preventDefault();
         if ($(window).width() < 768) {
-            showMobileAlert('Please enter prices for all items', 'warning');
+            showMobileAlert('براہ کرم تمام آئیٹمز کی قیمت درج کریں', 'warning');
         } else {
-            alert('Please enter prices for all items');
+        alert('براہ کرم تمام آئیٹمز کی قیمت درج کریں');
         }
         return false;
     }
@@ -1417,11 +929,11 @@ $('#editBillForm').on('submit', function(e) {
     if (!customerName || customerName.length < 2) {
         e.preventDefault();
         if ($(window).width() < 768) {
-            showMobileAlert('Please enter customer name', 'warning');
+            showMobileAlert('براہ کرم کسٹمر کا نام درج کریں', 'warning');
             $('#customer_name').focus();
         } else {
-            alert('Please enter customer name');
-            $('#customer_name').focus();
+        alert('براہ کرم کسٹمر کا نام درج کریں');
+        $('#customer_name').focus();
         }
         return false;
     }
@@ -1458,5 +970,417 @@ function forceRecalculate() {
     calculateGrandTotal();
     updateSummary();
 }
-</script> 
-</script> 
+</script>
+
+<style>
+/* Item Search Modal Styles */
+#itemSearchModal .modal-dialog {
+    max-width: 600px;
+}
+
+#itemSearchModal .list-group-item {
+    border-left: none;
+    border-right: none;
+    transition: all 0.2s ease;
+}
+
+#itemSearchModal .list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#itemSearchModal .item-modal-option {
+    cursor: pointer;
+    padding: 1rem;
+}
+
+#itemSearchModal .select-item-btn {
+    min-width: 80px;
+}
+
+#itemSearchModal .spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+.table-bordered td {
+    vertical-align: middle;
+}
+
+.item-row input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#quickAddModal .modal-body {
+    background-color: #f8f9fa;
+}
+
+.alert-info {
+    border-left: 4px solid #17a2b8;
+}
+
+/* Enhanced Mobile-specific styles */
+@media (max-width: 767.98px) {
+    /* Page Layout */
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    /* Header */
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch !important;
+    }
+
+    .d-flex.justify-content-between h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+    }
+
+    /* Customer Section */
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    /* Form Controls */
+    .form-control {
+        font-size: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        border: 2px solid #e9ecef;
+        transition: border-color 0.15s ease-in-out;
+    }
+
+    .form-control:focus {
+        border-color: #20c997 
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #495057;
+    }
+
+    /* Mobile Item Cards */
+    .mobile-item-card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .mobile-item-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .mobile-item-card .card-body {
+        padding: 1rem;
+    }
+
+    .mobile-item-card .card-title {
+        font-size: 1rem;
+        color: #20c997 
+        margin-bottom: 1rem;
+    }
+
+    /* Buttons */
+    .btn {
+        min-height: 48px;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+        margin-top: 1rem;
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-success:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        border: none;
+    }
+
+    .btn-outline-danger {
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        background: transparent;
+    }
+
+    .btn-outline-danger:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    /* Add Item Button */
+    .mobile-add-btn {
+        display: none;
+    }
+
+    /* Total Section */
+    .text-end {
+        text-align: center !important;
+    }
+
+    .text-end h4 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Alerts */
+    .alert {
+        font-size: 0.95rem;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    /* Sidebar */
+    .col-12.col-lg-4 {
+        order: -1;
+        margin-bottom: 2rem;
+    }
+
+    .col-12.col-lg-4 .card {
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Summary Cards */
+    .row > .col-6 {
+        margin-bottom: 1rem;
+    }
+
+    .fw-bold {
+        font-weight: 700 !important;
+    }
+
+    /* Number inputs */
+    input[type="number"] {
+        -webkit-appearance: none;
+        -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Modal Enhancements for Mobile */
+    #itemSearchModal .modal-dialog {
+        margin: 1rem;
+        max-width: none;
+    }
+
+    #itemSearchModal .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    #itemSearchModal .modal-header {
+        border-radius: 12px 12px 0 0;
+        padding: 1rem 1.5rem;
+    }
+
+    #itemSearchModal .modal-body {
+        padding: 0;
+    }
+
+    #itemSearchModal .list-group-item {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin: 0.25rem 0.5rem;
+    }
+
+    /* Enhanced touch targets for mobile */
+    #itemSearchModal .select-item-btn {
+        min-height: 36px;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    /* Fix positioning for customer suggestions on mobile */
+    #customer_list {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        z-index: 1050 !important;
+        background: white !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        max-height: 200px !important;
+        overflow-y: auto !important;
+    }
+
+    /* Mobile customer suggestion items */
+    .customer-suggestion-item {
+        min-height: 48px !important;
+        padding: 12px 16px !important;
+        font-size: 16px !important; /* Prevent zoom on iOS */
+        display: block !important;
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+    .customer-suggestion-item:hover {
+        background-color: #f8f9fa !important;
+        text-decoration: none !important;
+        color: inherit !important;
+    }
+
+
+
+    /* Loading states */
+    .btn:disabled {
+        opacity: 0.6;
+    }
+
+    /* Focus states for accessibility */
+    .btn:focus,
+    .form-control:focus {
+        outline: none;
+    }
+
+    /* Spacing improvements */
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem !important;
+    }
+
+    /* Improve readability */
+    body {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+}
+
+/* Form validation styles */
+.form-control.is-valid {
+    border-color: #28a745;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='m2.3 6.73 4.89-4.89-1.42-1.42L1.89 5.3l-1.42-1.42L-.3 5.3z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Customer selection feedback */
+.customer-selected {
+    background-color: #d4edda !important;
+    border-color: #28a745 !important;
+    transition: all 0.3s ease;
+}
+
+.customer-selected::placeholder {
+    color: #28a745 !important;
+}
+
+/* Mobile alerts */
+.mobile-alert {
+    animation: slideInFromTop 0.3s ease-out;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes slideInFromTop {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.mobile-alert.fade {
+    animation: fadeOut 0.3s ease-out;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 575.98px) {
+    .container-fluid {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .mobile-item-card .card-body {
+        padding: 0.75rem;
+    }
+
+    .form-control {
+        font-size: 1rem;
+        padding: 0.625rem 0.875rem;
+    }
+
+    .btn {
+        min-height: 44px;
+        font-size: 0.95rem;
+    }
+
+    /* Smaller text on very small screens */
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+    }
+
+    /* Adjust mobile card spacing */
+    .mobile-item-card {
+        margin-bottom: 0.75rem;
+    }
+}
+</style>
