@@ -307,8 +307,8 @@
 
 /* Toggle switch styling */
 .form-check-input:checked {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+    border-color: #20c997;
 }
 
 .form-check-label {

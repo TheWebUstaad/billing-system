@@ -352,7 +352,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #007bff 0%, #6610f2 100%);
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -435,7 +435,7 @@
 }
 
 .view-toggle .btn.active {
-    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
     color: white;
     border: none;
 }
@@ -693,7 +693,7 @@ $(document).ready(function() {
             text: 'This will create a copy of the selected item with "(Copy)" appended to the name.',
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#007bff',
+            confirmButtonColor: '#20c997',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'Yes, Duplicate',
             cancelButtonText: 'Cancel'

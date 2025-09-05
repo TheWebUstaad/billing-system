@@ -334,6 +334,144 @@
                 font-size: 0.7rem;
             }
         }
+
+        /* Global Bootstrap Button Gradient Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            border: none !important;
+            color: white !important;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3) !important;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            border: none !important;
+            color: white !important;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3) !important;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            border: none !important;
+            color: white !important;
+        }
+
+        .btn-info:hover {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3) !important;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            border: none !important;
+            color: white !important;
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3) !important;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            border: none !important;
+            color: white !important;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3) !important;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            border: none !important;
+            color: white !important;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3) !important;
+        }
+
+        .btn-light {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            border: none !important;
+            color: white !important;
+        }
+
+        .btn-light:hover {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3) !important;
+        }
+
+        .btn-dark {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            border: none !important;
+            color: white !important;
+        }
+
+        .btn-dark:hover {
+            background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(32, 201, 151, 0.3) !important;
+        }
+
+        /* Global Bootstrap Background Utility Gradient Styles */
+        .bg-primary {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            color: white !important;
+        }
+
+        .bg-success {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            color: white !important;
+        }
+
+        .bg-info {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            color: white !important;
+        }
+
+        .bg-warning {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            color: white !important;
+        }
+
+        .bg-danger {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            color: white !important;
+        }
+
+        .bg-secondary {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            color: white !important;
+        }
+
+        .bg-light {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            color: white !important;
+        }
+
+        .bg-dark {
+            background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+            color: white !important;
+        }
     </style>
 </head>
 <body>

@@ -247,7 +247,7 @@ document.getElementById('paymentForm').addEventListener('submit', function(e) {
 }
 
 .summary-header {
-    background: linear-gradient(135deg, #007bff, #0056b3);
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
     color: white;
     padding: 1.5rem;
     display: flex;
@@ -434,14 +434,14 @@ document.getElementById('paymentForm').addEventListener('submit', function(e) {
 }
 
 .method-card:hover {
-    border-color: #007bff;
+    border-color: #20c997;
     background: #f8f9fa;
 }
 
 .method-option input[type="radio"]:checked + .method-card {
-    border-color: #007bff;
-    background: #e3f2fd;
-    color: #007bff;
+    border-color: #20c997;
+    background: rgba(32, 201, 151, 0.1);
+    color: #20c997;
 }
 
 .method-card i {

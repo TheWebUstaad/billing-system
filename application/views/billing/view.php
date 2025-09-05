@@ -1,83 +1,45 @@
-    <div class="container-fluid">
-    <!-- Header Section -->
-    <div class="row mb-4">
-        <div class="col-12 col-md-8">
-            <div class="d-flex align-items-center mb-3 mb-md-0">
-                <div class="bill-status-indicator me-3">
-                    <i class="fa fa-receipt text-success fa-2x"></i>
+    <!-- Simple Mobile Container -->
+    <div class="simple-mobile">
+        <!-- Simple Header -->
+        <div class="simple-header">
+            <div class="back-button">
+                <a href="<?php echo base_url('billing'); ?>" class="back-link">
+                    <i class="fa fa-arrow-left"></i>
+                </a>
                 </div>
-                <div>
-                    <h2 class="mb-1">Bill #<?php echo $bill->bill_number; ?></h2>
-                    <p class="text-muted mb-0">
-                        Created on <?php echo date('d M Y, h:i A', strtotime($bill->created_at)); ?>
-                        <?php if ($bill->status === 'void'): ?>
-                            <span class="badge bg-danger ms-2">VOID</span>
-                        <?php endif; ?>
-                    </p>
-                </div>
+            <div class="bill-title">
+                <h1>Bill #<?php echo $bill->bill_number; ?></h1>
+                <div class="bill-date"><?php echo date('d M Y, h:i A', strtotime($bill->created_at)); ?></div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
-            <!-- Desktop Button Group -->
-            <div class="d-none d-md-flex justify-content-end">
-                <div class="btn-group" role="group">
-                    <a href="<?php echo base_url('billing'); ?>" class="btn btn-outline-secondary">
-                        <i class="fa fa-arrow-left"></i> Back
-                    </a>
-                    <a href="<?php echo base_url('billing/edit/' . $bill->id); ?>" class="btn btn-outline-primary">
-                        <i class="fa fa-edit"></i> Edit Bill
-                    </a>
-                    <a href="<?php echo base_url('billing/pdf/' . $bill->id); ?>" class="btn btn-outline-success" target="_blank">
-                        <i class="fa fa-download"></i> Download PDF
-                    </a>
-                    <a href="<?php echo base_url('billing/delete/' . $bill->id); ?>" class="btn btn-outline-danger delete-bill"
-                       data-bill="<?php echo $bill->bill_number; ?>" title="Delete Bill">
-                        <i class="fa fa-trash"></i> Delete
-                    </a>
-                </div>
+
+        <!-- Total Amount - Most Important -->
+        <div class="total-section">
+            <div class="total-label">Total Amount</div>
+            <div class="total-amount"><?php echo $settings['currency_symbol'] . ' ' . number_format($bill->total_amount, 2); ?></div>
             </div>
 
-            <!-- Mobile Button Layout -->
-            <div class="d-flex d-md-none flex-wrap gap-2">
-                <a href="<?php echo base_url('billing'); ?>" class="btn btn-outline-secondary flex-fill">
-                    <i class="fa fa-arrow-left"></i> Back
-                </a>
-                <a href="<?php echo base_url('billing/edit/' . $bill->id); ?>" class="btn btn-outline-primary flex-fill">
+        <!-- Simple Action Buttons -->
+        <div class="action-buttons">
+            <a href="<?php echo base_url('billing/edit/' . $bill->id); ?>" class="action-btn">
                     <i class="fa fa-edit"></i> Edit
                 </a>
-                <a href="<?php echo base_url('billing/pdf/' . $bill->id); ?>" class="btn btn-outline-success flex-fill" target="_blank">
+            <a href="<?php echo base_url('billing/pdf/' . $bill->id); ?>" class="action-btn" target="_blank">
                     <i class="fa fa-download"></i> PDF
                 </a>
-                <a href="<?php echo base_url('billing/delete/' . $bill->id); ?>" class="btn btn-outline-danger delete-bill flex-fill"
+            <a href="<?php echo base_url('billing/delete/' . $bill->id); ?>" class="action-btn delete-bill"
                    data-bill="<?php echo $bill->bill_number; ?>" title="Delete Bill">
                     <i class="fa fa-trash"></i> Delete
                 </a>
-            </div>
-        </div>
     </div>
 
-    <div class="row">
-        <!-- Left Panel - Bill & Customer Info -->
-        <div class="col-12 col-md-4 order-2 order-md-1">
-            <!-- Bill Information -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h6 class="card-title mb-0">
-                        <i class="fa fa-file-text me-2"></i>Bill Details
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="info-row">
-                        <span class="label">Bill Number:</span>
-                        <span class="value"><?php echo $bill->bill_number; ?></span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Date & Time:</span>
-                        <span class="value"><?php echo date('d M Y, h:i A', strtotime($bill->created_at)); ?></span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Items Count:</span>
-                        <span class="value">
+        <!-- Simple Bill Information -->
+        <div class="simple-section">
+            <div class="section-title">Bill Information</div>
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="info-label">Items:</span>
+                    <span class="info-value">
                             <?php 
                             // Group items for count
                             $grouped_for_count = array();
@@ -86,12 +48,12 @@
                                 $grouped_for_count[$key] = true;
                             }
                             echo count($grouped_for_count); 
-                            ?> items
+                        ?>
                         </span>
                     </div>
-                    <div class="info-row">
-                        <span class="label">Total Quantity:</span>
-                        <span class="value text-info fw-bold">
+                <div class="info-item">
+                    <span class="info-label">Quantity:</span>
+                    <span class="info-value">
                             <?php 
                             // Calculate total quantity
                             $total_qty = 0;
@@ -102,74 +64,40 @@
                             ?> pieces
                         </span>
                     </div>
-                    <div class="info-row">
-                        <span class="label">Total Amount:</span>
-                        <span class="value text-success fw-bold"><?php echo $settings['currency_symbol'] . ' ' . number_format($bill->total_amount, 2); ?></span>
-                    </div>
                 </div>
             </div>
 
-            <!-- Customer Information -->
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <h6 class="card-title mb-0">
-                        <i class="fa fa-user me-2"></i>Customer Information
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="customer-info">
-                        <div class="customer-avatar mb-3 text-center">
-                            <div class="avatar-circle">
-                                <?php echo strtoupper(substr($bill->customer_name ?: 'WC', 0, 2)); ?>
-                            </div>
-                        </div>
-                        <div class="info-row">
-                            <span class="label">Name:</span>
-                            <span class="value"><?php echo !empty($bill->customer_name) ? $bill->customer_name : 'Walk-in Customer'; ?></span>
+        <!-- Simple Customer Information -->
+        <div class="simple-section">
+            <div class="section-title">Customer</div>
+            <div class="info-list">
+                <div class="info-item">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value"><?php echo !empty($bill->customer_name) ? $bill->customer_name : 'Walk-in Customer'; ?></span>
                         </div>
                         <?php if (!empty($bill->customer_phone)): ?>
-                        <div class="info-row">
-                            <span class="label">Phone:</span>
-                            <span class="value">
-                                <i class="fa fa-phone me-1"></i><?php echo $bill->customer_phone; ?>
-                            </span>
+                <div class="info-item">
+                    <span class="info-label">Phone:</span>
+                    <span class="info-value"><?php echo $bill->customer_phone; ?></span>
                         </div>
                         <?php endif; ?>
-                    </div>
                 </div>
             </div>
 
             <!-- Quick Actions -->
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h6 class="card-title mb-0">
-                        <i class="fa fa-bolt me-2"></i>Quick Actions
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="<?php echo base_url('billing/create'); ?>" class="btn btn-primary">
-                            <i class="fa fa-plus me-2"></i>Create New Bill
-                        </a>
-                        <a href="<?php echo base_url('billing/pdf/' . $bill->id); ?>" class="btn btn-success" target="_blank">
-                            <i class="fa fa-download me-2"></i>Download PDF
-                        </a>
-                    </div>
-                </div>
+        <div class="simple-section">
+            <div class="section-title">Actions</div>
+            <div class="quick-actions">
+                <a href="<?php echo base_url('billing/create'); ?>" class="quick-action-link">
+                    <i class="fa fa-plus"></i> New Bill
+                </a>
             </div>
         </div>
 
-        <!-- Right Panel - Items -->
-        <div class="col-12 col-md-8 order-1 order-md-2 mb-4 mb-md-0">
-            <div class="card">
-                <div class="card-header bg-dark text-white">
-                    <h6 class="card-title mb-0">
-                        <i class="fa fa-shopping-cart me-2"></i>Bill Items
-                    </h6>
-                </div>
-                <div class="card-body p-0">
-                    <!-- Items List Container with Scroll -->
-                    <div class="items-scroll-container">
+        <!-- Simple Items List -->
+        <div class="simple-section">
+            <div class="section-title">Items</div>
+            <div class="items-list">
                         <?php
                         $counter = 1;
 
@@ -193,555 +121,307 @@
 
                         <?php if (!empty($grouped_items)): ?>
                             <?php foreach ($grouped_items as $index => $item): ?>
-                            <div class="item-card">
-                                <div class="item-header">
-                                    <div class="item-number">#<?php echo $counter++; ?></div>
-                                    <div class="item-title-section">
-                                        <h6 class="item-title mb-1"><?php echo $item['title']; ?></h6>
-                                        <?php if (!empty($item['sku'])): ?>
-                                            <small class="text-muted">SKU: <?php echo $item['sku']; ?></small>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                                <div class="item-details">
-                                    <div class="detail-row">
-                                        <span class="detail-label">Quantity:</span>
-                                        <span class="detail-value">
-                                            <span class="badge bg-light text-dark"><?php echo $item['quantity']; ?></span>
-                                        </span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span class="detail-label">Unit Price:</span>
-                                        <span class="detail-value"><?php echo $settings['currency_symbol'] . ' ' . number_format($item['unit_price'], 2); ?></span>
-                                    </div>
-                                    <div class="detail-row total-row">
-                                        <span class="detail-label">Total:</span>
-                                        <span class="detail-value fw-bold text-success"><?php echo $settings['currency_symbol'] . ' ' . number_format($item['total_price'], 2); ?></span>
-                                    </div>
+                    <div class="simple-item">
+                        <div class="item-name"><?php echo $item['title']; ?></div>
+                        <div class="item-details-simple">
+                            <span>Qty: <?php echo $item['quantity']; ?></span>
+                            <span>Price: <?php echo $settings['currency_symbol'] . ' ' . number_format($item['unit_price'], 2); ?></span>
+                            <span class="item-total"><?php echo $settings['currency_symbol'] . ' ' . number_format($item['total_price'], 2); ?></span>
                                 </div>
                             </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <div class="text-center py-5 text-muted">
-                                <i class="fa fa-shopping-cart fa-3x mb-3"></i>
-                                <p>No items found in this bill</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-
-                    <!-- Summary Section -->
-                    <?php if (!empty($grouped_items)): ?>
-                    <div class="items-summary">
-                        <?php
-                        // Calculate total quantity
-                        $total_quantity = 0;
-                        foreach ($grouped_items as $item) {
-                            $total_quantity += $item['quantity'];
-                        }
-                        ?>
-                        <div class="summary-row">
-                            <div class="summary-label">Total Items:</div>
-                            <div class="summary-value">
-                                <span class="badge bg-warning text-dark"><?php echo $total_quantity; ?> items</span>
-                            </div>
-                        </div>
-                        <div class="summary-row total-amount">
-                            <div class="summary-label">Grand Total:</div>
-                            <div class="summary-value">
-                                <h5 class="mb-0 text-warning"><?php echo $settings['currency_symbol'] . ' ' . number_format($bill->total_amount, 2); ?></h5>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="no-items">No items found</div>
                     <?php endif; ?>
-                </div>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-.bill-status-indicator {
-    animation: pulse 2s infinite;
+/* Simple Mobile-First Design with Dark/White Theme */
+.simple-mobile {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 8px;
+    background: #f8f9fa;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
-
-.info-row {
+/* Dark Header */
+.simple-header {
     display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #f1f1f1;
+    align-items: center;
+    padding: 20px;
+    background: #1a1a1a;
+    color: white;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.info-row:last-child {
+.back-button {
+    margin-right: 16px;
+}
+
+.back-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 20px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.back-link:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.bill-title h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.bill-date {
+    font-size: 14px;
+    color: #cccccc;
+    margin-top: 6px;
+}
+
+/* Total Amount Section - Dark Theme */
+.total-section {
+    background: #2c3e50;
+    color: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    border: 2px solid #34495e;
+}
+
+.total-label {
+    font-size: 12px;
+    color: #ecf0f1;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+        font-weight: 600;
+}
+
+.total-amount {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Action Buttons - Dark Theme */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.action-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 12px;
+    background: #34495e;
+    border: 2px solid #2c3e50;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.action-btn:hover {
+    background: #2c3e50;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+.action-btn i {
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+/* Simple Sections with Dark Accents */
+.simple-section {
+    margin-bottom: 24px;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #e9ecef;
+}
+
+.simple-section:last-child {
     border-bottom: none;
 }
 
-.info-row .label {
-    font-weight: 500;
-    color: #666;
-    flex-shrink: 0;
-}
-
-.info-row .value {
-    font-weight: 600;
-    color: #333;
-    text-align: right;
-    word-break: break-word;
-}
-
-/* Mobile responsive info rows */
-@media (max-width: 575.98px) {
-    .info-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
-
-    .info-row .value {
-        text-align: left;
-        font-size: 0.95rem;
-    }
-
-    .info-row .label {
-        font-size: 0.85rem;
-        opacity: 0.8;
-    }
-}
-
-.avatar-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: white;
+.section-title {
     font-size: 18px;
-    margin: 0 auto;
-}
-
-.card {
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
-    border: none;
-    border-radius: 12px;
-    margin-bottom: 1rem;
-}
-
-.card-header {
-    border-radius: 12px 12px 0 0;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.table th {
-    border-top: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.item-info strong {
-    color: #2c3e50;
-}
-
-.btn {
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.btn-group .btn {
-    border-radius: 8px;
-    margin: 0 2px;
-}
-
-.badge {
-    font-size: 0.8rem;
-}
-
-h2 {
-    color: #2c3e50;
     font-weight: 700;
-}
-
-.text-muted {
-    font-size: 0.9rem;
-}
-
-/* Comprehensive Mobile Responsiveness */
-@media (max-width: 767.98px) {
-    .container-fluid {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    /* Header improvements */
-    h2 {
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .bill-status-indicator .fa-2x {
-        font-size: 1.5rem;
-    }
-
-    /* Mobile button layout */
-    .d-flex.d-md-none .btn {
-        min-height: 44px;
-        font-size: 0.9rem;
-        padding: 0.5rem 0.75rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .d-flex.d-md-none .btn i {
-        margin-right: 0.25rem;
-    }
-
-    /* Card improvements */
-    .card {
-        margin-bottom: 1rem;
-        border-radius: 0.75rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .card-header {
-        padding: 1rem;
-        border-radius: 0.75rem 0.75rem 0 0;
-    }
-
-    .card-body {
-        padding: 1rem;
-    }
-
-    /* Avatar improvements */
-    .avatar-circle {
-        width: 50px;
-        height: 50px;
-        font-size: 16px;
-    }
-
-    /* Table improvements */
-    .table-responsive {
-        border-radius: 0.5rem;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .table-responsive .table {
-        font-size: 0.875rem;
-        margin-bottom: 0;
-    }
-
-    .table-responsive .table th,
-    .table-responsive .table td {
-        padding: 0.75rem 0.5rem;
-        white-space: nowrap;
-    }
-
-    .table-responsive .table th {
-        font-weight: 600;
-        font-size: 0.8rem;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #34495e;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
-    /* Badge improvements */
-    .badge {
-        font-size: 0.75rem;
-        padding: 0.375rem 0.5rem;
-    }
-
-    /* Item info improvements */
-    .item-info strong {
-        font-size: 0.95rem;
-        display: block;
-        margin-bottom: 0.25rem;
-    }
-
-    .item-info small {
-        font-size: 0.8rem;
-    }
-
-    /* Quick actions improvements */
-    .d-grid.gap-2 {
-        gap: 0.5rem !important;
-    }
-
-    .d-grid.gap-2 .btn {
-        min-height: 48px;
-        font-size: 0.95rem;
-    }
-
-    /* Footer table improvements */
-    .table-dark td {
-        padding: 0.5rem;
-    }
-
-    .table-dark .badge {
-        font-size: 0.8rem;
-    }
-
-    /* Spacing improvements */
-    .mb-4 {
-        margin-bottom: 1.5rem !important;
-    }
-
-    .mb-3 {
-        margin-bottom: 1rem !important;
-    }
-
-    /* Text improvements */
-    .text-muted {
-        font-size: 0.85rem;
-    }
-
-    /* Animation improvements for mobile */
-    .bill-status-indicator {
-        animation-duration: 3s; /* Slower on mobile to reduce battery usage */
-    }
+/* Information Lists with Dark Styling */
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-/* Extra small screen optimizations */
-@media (max-width: 575.98px) {
-    .container-fluid {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-
-    h2 {
-        font-size: 1.25rem;
-    }
-
-    .card-body {
-        padding: 0.75rem;
-    }
-
-    .table-responsive .table th,
-    .table-responsive .table td {
-        padding: 0.5rem 0.25rem;
-    }
-
-    .d-flex.d-md-none .btn {
-        font-size: 0.85rem;
-        padding: 0.5rem 0.5rem;
-    }
-
-    .btn i {
-        font-size: 0.9rem;
-    }
-
-    /* Hide more table elements on very small screens */
-    .d-none.d-sm-table-cell {
-        display: none !important;
-    }
-}
-
-/* Card-based Bill Items Layout */
-.items-scroll-container {
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 1rem;
-}
-
-@media (max-width: 767.98px) {
-    .items-scroll-container {
-        max-height: 300px;
-        padding: 0.75rem;
-    }
-}
-
-.item-card {
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
     background: #f8f9fa;
-    border: 1px solid #e9ecef;
     border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
+    border-left: 4px solid #34495e;
+}
+
+.info-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 15px;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+/* Items List with Dark Accents */
+.items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.simple-item {
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     transition: all 0.3s ease;
 }
 
-.item-card:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transform: translateY(-1px);
+.simple-item:hover {
+    border-color: #34495e;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
-.item-card:last-child {
-    margin-bottom: 0;
-}
-
-.item-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-}
-
-.item-number {
-    background: #007bff;
-    color: white;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
-    font-weight: bold;
-    flex-shrink: 0;
-}
-
-.item-title-section {
-    flex: 1;
-}
-
-.item-title {
+.item-name {
+    font-size: 17px;
+    font-weight: 700;
     color: #2c3e50;
-    font-weight: 600;
-    margin: 0;
-    font-size: 1rem;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 6px;
 }
 
-.item-details {
-    background: white;
-    border-radius: 6px;
-    padding: 0.75rem;
-    border: 1px solid #e9ecef;
-}
-
-.detail-row {
+.item-details-simple {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.375rem 0;
-    border-bottom: 1px solid #f8f9fa;
-}
-
-.detail-row:last-child {
-    border-bottom: none;
-}
-
-.detail-row.total-row {
-    background: #f8f9fa;
-    margin: 0 -0.75rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 4px;
-    border-bottom: none;
-}
-
-.detail-label {
-    font-weight: 500;
+    font-size: 14px;
     color: #666;
-    font-size: 0.9rem;
-}
-
-.detail-value {
-    font-weight: 600;
-    color: #333;
-    text-align: right;
-}
-
-.items-summary {
-    background: #343a40;
-    color: white;
-    padding: 1rem;
-    border-top: 1px solid #495057;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-}
-
-.summary-row.total-amount {
-    border-top: 2px solid #495057;
-    margin-top: 0.5rem;
-    padding-top: 1rem;
-}
-
-.summary-label {
     font-weight: 500;
-    font-size: 0.95rem;
 }
 
-.summary-value {
-    text-align: right;
+.item-details-simple span {
+    flex: 1;
+    text-align: center;
+    padding: 4px 8px;
 }
 
-/* Mobile Optimizations for Card Layout */
-@media (max-width: 767.98px) {
-    .item-card {
-        padding: 0.75rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .item-header {
-        gap: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .item-number {
-        width: 25px;
-        height: 25px;
-        font-size: 0.7rem;
-    }
-
-    .item-title {
-        font-size: 0.9rem;
-    }
-
-    .item-details {
-        padding: 0.5rem;
-    }
-
-    .detail-row {
-        padding: 0.25rem 0;
-    }
-
-    .detail-label {
-        font-size: 0.85rem;
-    }
-
-    .detail-value {
-        font-size: 0.9rem;
-    }
-
-    .items-summary {
-        padding: 0.75rem;
-    }
-
-    .summary-label {
-        font-size: 0.9rem;
-    }
+.item-total {
+    font-weight: 700;
+    color: #2c3e50;
+    background: #ecf0f1;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 15px;
 }
 
-@media (max-width: 575.98px) {
-    .items-scroll-container {
-        max-height: 250px;
-        padding: 0.5rem;
-    }
+.no-items {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 14px;
+}
 
-    .item-card {
-        padding: 0.5rem;
-    }
+/* Quick Actions with Dark Theme */
+.quick-actions {
+    margin-top: 12px;
+}
 
-    .item-title {
-        font-size: 0.85rem;
-    }
+.quick-action-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: #34495e;
+    border: 2px solid #2c3e50;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 
-    .detail-label,
-    .detail-value {
-        font-size: 0.8rem;
-    }
+.quick-action-link:hover {
+    background: #2c3e50;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.quick-action-link i {
+    font-size: 16px;
+}
+
+/* Customer Styling */
+.customer-name {
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 6px;
+    font-size: 16px;
+}
+
+.customer-phone {
+    color: #666;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.customer-phone i {
+    color: #34495e;
 }
 </style>
 

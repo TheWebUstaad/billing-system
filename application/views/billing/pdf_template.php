@@ -139,7 +139,7 @@
         <table class="customer-info-table" cellpadding="4" cellspacing="2" style="margin: 4px;">
             <tr>
                 <td style="padding: 3px 6px;font-size: 10px; font-weight: bold;"><span class="info-label"></span> <?php echo !empty($bill->customer_name) ? $bill->customer_name : 'Walk-in'; ?></td>
-                <td style="padding: 3px 6px;font-size: 12px; font-weight: bold;"><span class="info-label"></span> <?php echo date('d-M-y h:i A', strtotime($bill->created_at)); ?></td>
+                <td style="padding: 3px 6px;font-size: 12px; font-weight: bold;"><span class="info-label"></span> <?php echo date('d/m/Y', strtotime($bill->created_at)); ?></td>
                 <td style="padding: 3px 6px;font-size: 12px; font-weight: bold;"><span class="info-label"></span> Bill No:<?php echo $bill->bill_number; ?></td>
             </tr>
         </table>

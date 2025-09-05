@@ -1,0 +1,1102 @@
+    <!-- Mobile-First Container -->
+    <div class="mobile-container">
+        <!-- Mobile Header Card - Most Important Information -->
+        <div class="mobile-header-card">
+            <div class="header-top">
+                <div class="bill-icon">
+                    <i class="fa fa-receipt"></i>
+                </div>
+                <div class="header-actions">
+                    <a href="<?php echo base_url('billing'); ?>" class="back-btn">
+                        <i class="fa fa-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bill-main-info">
+                <div class="bill-number-display">
+                    Bill #<?php echo $bill->bill_number; ?>
+        </div>
+                <div class="bill-date">
+                    <?php echo date('d M Y, h:i A', strtotime($bill->created_at)); ?>
+                </div>
+            </div>
+
+            <div class="bill-amount-display">
+                <div class="amount-label">Total Amount</div>
+                <div class="amount-value"><?php echo $settings['currency_symbol'] . ' ' . number_format($bill->total_amount, 2); ?></div>
+            </div>
+
+            <?php if ($bill->status === 'void'): ?>
+                <div class="bill-status-badge">
+                    <span class="badge void-badge">VOID</span>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- Mobile Action Buttons -->
+        <div class="mobile-action-buttons">
+            <a href="<?php echo base_url('billing/edit/' . $bill->id); ?>" class="action-btn edit-btn">
+                <i class="fa fa-edit"></i>
+                <span>Edit</span>
+            </a>
+            <a href="<?php echo base_url('billing/pdf/' . $bill->id); ?>" class="action-btn pdf-btn" target="_blank">
+                <i class="fa fa-download"></i>
+                <span>PDF</span>
+            </a>
+            <a href="<?php echo base_url('billing/delete/' . $bill->id); ?>" class="action-btn delete-btn delete-bill"
+                   data-bill="<?php echo $bill->bill_number; ?>" title="Delete Bill">
+                <i class="fa fa-trash"></i>
+                <span>Delete</span>
+                </a>
+    </div>
+
+        <!-- Bill Summary Cards - Mobile Optimized -->
+        <div class="mobile-info-cards">
+            <!-- Bill Summary Card -->
+            <div class="info-card">
+                <div class="card-icon">
+                    <i class="fa fa-file-text"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Bill Summary</div>
+                    <div class="card-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Items:</span>
+                            <span class="detail-value">
+                            <?php 
+                            // Group items for count
+                            $grouped_for_count = array();
+                            foreach ($bill->items as $item) {
+                                $key = $item->title . '_' . $item->unit_price;
+                                $grouped_for_count[$key] = true;
+                            }
+                            echo count($grouped_for_count); 
+                                ?>
+                        </span>
+                    </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Quantity:</span>
+                            <span class="detail-value">
+                            <?php 
+                            // Calculate total quantity
+                            $total_qty = 0;
+                            foreach ($bill->items as $item) {
+                                $total_qty += $item->quantity;
+                            }
+                            echo $total_qty; 
+                                ?>
+                        </span>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Card -->
+            <div class="info-card">
+                <div class="card-icon">
+                    <i class="fa fa-user"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Customer</div>
+                    <div class="card-details">
+                        <div class="customer-name">
+                            <?php echo !empty($bill->customer_name) ? $bill->customer_name : 'Walk-in Customer'; ?>
+                        </div>
+                        <?php if (!empty($bill->customer_phone)): ?>
+                        <div class="customer-phone">
+                            <i class="fa fa-phone"></i> <?php echo $bill->customer_phone; ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="info-card">
+                <div class="card-icon">
+                    <i class="fa fa-bolt"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Actions</div>
+                    <div class="card-actions">
+                        <a href="<?php echo base_url('billing/create'); ?>" class="quick-action-btn">
+                            <i class="fa fa-plus"></i>
+                            <span>New Bill</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bill Items Section - Mobile Optimized -->
+        <div class="mobile-items-section">
+            <div class="section-header">
+                <i class="fa fa-shopping-cart"></i>
+                <span>Bill Items</span>
+                </div>
+
+            <div class="items-container">
+                        <?php
+                        $counter = 1;
+
+                        // Group items by title and unit_price
+                        $grouped_items = array();
+                        foreach ($bill->items as $item) {
+                            $key = $item->title . '_' . $item->unit_price;
+                            if (!isset($grouped_items[$key])) {
+                                $grouped_items[$key] = array(
+                                    'title' => $item->title,
+                                    'sku' => $item->sku ?? '',
+                                    'unit_price' => $item->unit_price,
+                                    'quantity' => 0,
+                                    'total_price' => 0
+                                );
+                            }
+                            $grouped_items[$key]['quantity'] += $item->quantity;
+                            $grouped_items[$key]['total_price'] += $item->total_price;
+                        }
+                        ?>
+
+                        <?php if (!empty($grouped_items)): ?>
+                            <?php foreach ($grouped_items as $index => $item): ?>
+                    <div class="mobile-item-card">
+                        <div class="item-header-mobile">
+                            <div class="item-counter">#<?php echo $counter++; ?></div>
+                            <div class="item-title-mobile"><?php echo $item['title']; ?></div>
+                                        <?php if (!empty($item['sku'])): ?>
+                                <div class="item-sku">SKU: <?php echo $item['sku']; ?></div>
+                                        <?php endif; ?>
+                                    </div>
+
+                        <div class="item-pricing-mobile">
+                            <div class="price-row">
+                                <span class="price-label">Price:</span>
+                                <span class="price-value"><?php echo $settings['currency_symbol'] . ' ' . number_format($item['unit_price'], 2); ?></span>
+                                </div>
+                            <div class="price-row">
+                                <span class="price-label">Qty:</span>
+                                <span class="price-value"><?php echo $item['quantity']; ?></span>
+                                    </div>
+                            <div class="price-row total-row-mobile">
+                                <span class="price-label">Total:</span>
+                                <span class="price-value total-value"><?php echo $settings['currency_symbol'] . ' ' . number_format($item['total_price'], 2); ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+
+                    <!-- Items Summary -->
+                    <div class="mobile-summary">
+                        <?php
+                        // Calculate total quantity
+                        $total_quantity = 0;
+                        foreach ($grouped_items as $item) {
+                            $total_quantity += $item['quantity'];
+                        }
+                        ?>
+                        <div class="summary-stat">
+                            <span class="stat-label">Total Items:</span>
+                            <span class="stat-value"><?php echo $total_quantity; ?></span>
+                            </div>
+                        <div class="summary-stat total-stat">
+                            <span class="stat-label">Grand Total:</span>
+                            <span class="stat-value"><?php echo $settings['currency_symbol'] . ' ' . number_format($bill->total_amount, 2); ?></span>
+                        </div>
+                            </div>
+                <?php else: ?>
+                    <div class="empty-items">
+                        <i class="fa fa-shopping-cart"></i>
+                        <p>No items found in this bill</p>
+                    </div>
+                    <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Mobile-First Bill View Styles */
+.mobile-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 10px;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* Mobile Header Card */
+.mobile-header-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    position: relative;
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.bill-icon {
+    font-size: 24px;
+    color: rgba(255,255,255,0.8);
+}
+
+.back-btn {
+    color: white;
+    text-decoration: none;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.bill-main-info {
+    margin-bottom: 15px;
+}
+
+.bill-number-display {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.bill-date {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.bill-amount-display {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.amount-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+        opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.amount-value {
+    font-size: 24px;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.void-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #e74c3c;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Mobile Action Buttons */
+.mobile-action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.action-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 10px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.action-btn i {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.edit-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.edit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.pdf-btn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.pdf-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.delete-btn {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.delete-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
+
+/* Mobile Info Cards */
+.mobile-info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.card-icon {
+    font-size: 20px;
+    color: #667eea;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-details {
+    font-size: 13px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.detail-value {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.customer-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.customer-phone {
+    color: #666;
+    font-size: 12px;
+}
+
+.customer-phone i {
+    margin-right: 5px;
+}
+
+.card-actions {
+    margin-top: 8px;
+}
+
+.quick-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.quick-action-btn:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+}
+
+/* Mobile Items Section */
+.mobile-items-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.section-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.section-header i {
+    font-size: 18px;
+}
+
+.items-container {
+    padding: 0;
+}
+
+.mobile-item-card {
+    border-bottom: 1px solid #f1f1f1;
+    padding: 15px 20px;
+    transition: background-color 0.3s ease;
+}
+
+.mobile-item-card:hover {
+    background-color: #f8f9fa;
+}
+
+.mobile-item-card:last-child {
+    border-bottom: none;
+}
+
+.item-header-mobile {
+    margin-bottom: 10px;
+}
+
+.item-counter {
+    display: inline-block;
+    background: #667eea;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.item-title-mobile {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 3px;
+}
+
+.item-sku {
+    font-size: 12px;
+    color: #666;
+}
+
+.item-pricing-mobile {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.price-row:last-child {
+    margin-bottom: 0;
+}
+
+.price-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.price-value {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.total-row-mobile {
+    border-top: 2px solid #e9ecef;
+    padding-top: 8px;
+    margin-top: 8px;
+}
+
+.total-value {
+    color: #28a745;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.mobile-summary {
+    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-stat {
+    text-align: center;
+    flex: 1;
+}
+
+.total-stat {
+    border-left: 2px solid #6c757d;
+    margin-left: 15px;
+        padding-left: 15px;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.empty-items {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.empty-items i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.empty-items p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Desktop Responsive Styles */
+@media (min-width: 768px) {
+    .mobile-container {
+        max-width: 1200px;
+        padding: 20px;
+    }
+
+    .mobile-header-card {
+        padding: 30px;
+        border-radius: 20px;
+    }
+
+    .bill-number-display {
+        font-size: 32px;
+    }
+
+    .amount-value {
+        font-size: 28px;
+    }
+
+    .mobile-info-cards {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+    .info-card {
+        padding: 20px;
+    }
+
+    .mobile-action-buttons {
+        gap: 15px;
+    }
+
+    .action-btn {
+        padding: 20px 15px;
+        font-size: 14px;
+    }
+
+    .action-btn i {
+        font-size: 20px;
+        margin-bottom: 8px;
+    }
+
+    .mobile-items-section {
+        border-radius: 16px;
+    }
+
+    .section-header {
+        padding: 20px 25px;
+        font-size: 18px;
+    }
+
+    .mobile-item-card {
+        padding: 20px 25px;
+    }
+
+    .item-title-mobile {
+        font-size: 18px;
+    }
+
+    .mobile-summary {
+        padding: 20px 25px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-container {
+        padding: 30px;
+    }
+
+    .mobile-info-cards {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+}
+
+/* Utility Classes */
+.text-center { text-align: center; }
+.mb-0 { margin-bottom: 0; }
+.mt-2 { margin-top: 0.5rem; }
+.d-flex { display: flex; }
+.align-items-center { align-items: center; }
+.justify-content-between { justify-content: space-between; }
+.flex-fill { flex: 1 1 auto; }
+.gap-2 { gap: 0.5rem; }
+.p-3 { padding: 1rem; }
+.text-success { color: #28a745; }
+.text-muted { color: #6c757d; }
+.fw-bold { font-weight: 700; }
+.text-decoration-none { text-decoration: none; }
+.border-radius { border-radius: 0.375rem; }
+.shadow { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
+
+
+</style>
+
+<script>
+$(document).ready(function() {
+    // Delete bill confirmation
+    $('.delete-bill').click(function(e) {
+        e.preventDefault();
+        var link = $(this).attr('href');
+        var billNumber = $(this).data('bill');
+
+        Swal.fire({
+            title: 'بل ڈیلیٹ کریں؟',
+            html: '<div style="text-align: right; direction: rtl;">' +
+                  '<p>کیا آپ واقعی بل <strong>"' + billNumber + '"</strong> کو ڈیلیٹ کرنا چاہتے ہیں؟</p>' +
+                  '<p style="color: #e74c3c;"><i class="fas fa-exclamation-triangle"></i> یہ عمل واپس نہیں ہو سکتا!</p>' +
+                  '</div>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ہاں، ڈیلیٹ کریں!',
+            cancelButtonText: 'منسوخ کریں'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = link;
+            }
+        });
+    });
+});
+</script>
+    }
+
+    /* Table improvements */
+    .table-responsive {
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-responsive .table {
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    .table-responsive .table th,
+    .table-responsive .table td {
+        padding: 0.75rem 0.5rem;
+        white-space: nowrap;
+    }
+
+    .table-responsive .table th {
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Badge improvements */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.5rem;
+    }
+
+    /* Item info improvements */
+    .item-info strong {
+        font-size: 0.95rem;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .item-info small {
+        font-size: 0.8rem;
+    }
+
+    /* Quick actions improvements */
+    .d-grid.gap-2 {
+        gap: 0.5rem !important;
+    }
+
+    .d-grid.gap-2 .btn {
+        min-height: 48px;
+        font-size: 0.95rem;
+    }
+
+    /* Footer table improvements */
+    .table-dark td {
+        padding: 0.5rem;
+    }
+
+    .table-dark .badge {
+        font-size: 0.8rem;
+    }
+
+    /* Spacing improvements */
+    .mb-4 {
+        margin-bottom: 1.5rem !important;
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem !important;
+    }
+
+    /* Text improvements */
+    .text-muted {
+        font-size: 0.85rem;
+    }
+
+    /* Animation improvements for mobile */
+    .bill-status-indicator {
+        animation-duration: 3s; /* Slower on mobile to reduce battery usage */
+    }
+}
+
+/* Extra small screen optimizations */
+@media (max-width: 575.98px) {
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .table-responsive .table th,
+    .table-responsive .table td {
+        padding: 0.5rem 0.25rem;
+    }
+
+    .d-flex.d-md-none .btn {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.5rem;
+    }
+
+    .btn i {
+        font-size: 0.9rem;
+    }
+
+    /* Hide more table elements on very small screens */
+    .d-none.d-sm-table-cell {
+        display: none !important;
+    }
+}
+
+/* Card-based Bill Items Layout */
+.items-scroll-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+@media (max-width: 767.98px) {
+    .items-scroll-container {
+        max-height: 300px;
+        padding: 0.75rem;
+    }
+}
+
+.item-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.item-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.item-card:last-child {
+    margin-bottom: 0;
+}
+
+.item-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.item-number {
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.item-title-section {
+    flex: 1;
+}
+
+.item-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.item-details {
+    background: white;
+    border-radius: 6px;
+    padding: 0.75rem;
+    border: 1px solid #e9ecef;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.375rem 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-row.total-row {
+    background: #f8f9fa;
+    margin: 0 -0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #333;
+    text-align: right;
+}
+
+.items-summary {
+    background: #343a40;
+    color: white;
+    padding: 1rem;
+    border-top: 1px solid #495057;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.summary-row.total-amount {
+    border-top: 2px solid #495057;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+}
+
+.summary-label {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.summary-value {
+    text-align: right;
+}
+
+/* Mobile Optimizations for Card Layout */
+@media (max-width: 767.98px) {
+    .item-card {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .item-header {
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .item-number {
+        width: 25px;
+        height: 25px;
+        font-size: 0.7rem;
+    }
+
+    .item-title {
+        font-size: 0.9rem;
+    }
+
+    .item-details {
+        padding: 0.5rem;
+    }
+
+    .detail-row {
+        padding: 0.25rem 0;
+    }
+
+    .detail-label {
+        font-size: 0.85rem;
+    }
+
+    .detail-value {
+        font-size: 0.9rem;
+    }
+
+    .items-summary {
+        padding: 0.75rem;
+    }
+
+    .summary-label {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .items-scroll-container {
+        max-height: 250px;
+        padding: 0.5rem;
+    }
+
+    .item-card {
+        padding: 0.5rem;
+    }
+
+    .item-title {
+        font-size: 0.85rem;
+    }
+
+    .detail-label,
+    .detail-value {
+        font-size: 0.8rem;
+    }
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // Delete bill confirmation
+    $('.delete-bill').click(function(e) {
+        e.preventDefault();
+        var link = $(this).attr('href');
+        var billNumber = $(this).data('bill');
+        
+        Swal.fire({
+            title: 'بل ڈیلیٹ کریں؟',
+            html: '<div style="text-align: right; direction: rtl;">' +
+                  '<p>کیا آپ واقعی بل <strong>"' + billNumber + '"</strong> کو ڈیلیٹ کرنا چاہتے ہیں؟</p>' +
+                  '<p style="color: #e74c3c;"><i class="fas fa-exclamation-triangle"></i> یہ عمل واپس نہیں ہو سکتا!</p>' +
+                  '</div>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'ہاں، ڈیلیٹ کریں!',
+            cancelButtonText: 'منسوخ کریں'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = link;
+            }
+        });
+    });
+});
+</script> 

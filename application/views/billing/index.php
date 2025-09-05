@@ -1,17 +1,17 @@
 <!-- Professional Bills Management Page -->
 <div class="container-fluid">
-    <!-- Page Header -->
+    <!-- Enhanced Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4 page-header-mobile">
         <div>
             <h2 class="mb-1 d-none d-md-block">Bills Management</h2>
-            <h4 class="mb-1 d-md-none fw-bold text-primary">Bills</h4>
-            <p class="text-muted mb-0 small">Manage and track all your bills</p>
+            <div class="d-md-none mb-1 fw-bold text-primary" style="display: flex; align-items: center; gap: 8px;">
+                <h4 class="mb-0 fw-bold text-primary" style="font-size:1.1rem;">Bills</h4>
+                <span class="stats-number mb-0" id="mobileTotalBills" style="font-size:1.1rem;">0</span>
+                <span class="stats-label mb-0" style="font-size:0.9rem;">Total Bills</span>
+            </div>
+            <p class="text-muted mb-0 small d-none d-md-block">Manage and track all your bills</p>
         </div>
         <div class="d-flex gap-2">
-            <!-- Mobile Create Button -->
-            <a href="<?php echo base_url('billing/create'); ?>" class="btn btn-primary d-md-none mobile-create-btn" title="نیا بل بنائیں">
-                <i class="fas fa-plus"></i>
-            </a>
             <!-- Desktop Create Button -->
             <a href="<?php echo base_url('billing/create'); ?>" class="btn btn-primary d-none d-md-inline-flex align-items-center">
                 <i class="fas fa-plus me-2"></i>
@@ -21,7 +21,15 @@
         </div>
     </div>
 
-    <!-- Filters and Search -->
+    <!-- Floating Action Button for Mobile -->
+    <div class="d-md-none">
+        <a href="<?php echo base_url('billing/create'); ?>" class="mobile-fab">
+            <i class="fas fa-plus"></i>
+        </a>
+    </div>
+
+    <!-- Desktop Filters and Search -->
+    <div class="d-none d-md-block">
     <div class="card mb-4">
         <div class="card-body">
             <div class="row">
@@ -73,20 +81,116 @@
                         <button type="button" class="btn btn-outline-secondary btn-sm d-none d-md-inline-block" id="resetBtn" title="Reset Filters">
                             <i class="fas fa-refresh"></i>
                         </button>
-                        <!-- Mobile Reset Button -->
-                        <button type="button" class="btn btn-outline-secondary btn-sm d-md-none" id="mobileResetBtn" title="Reset Filters">
-                            <i class="fas fa-refresh"></i>
-                        </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bills List - Desktop Table & Mobile Cards -->
+    <!-- Mobile Header with Quick Actions -->
+    <div class="d-md-none mobile-header-sticky">
+        <!-- <div class="mobile-quick-stats bg-white border-bottom p-3">
+            <div class="row align-items-center">
+                <div class="col-6">
+                    <div class="stats-item">
+                        <div class="stats-number" id="mobileTotalBills">0</div>
+                        <div class="stats-label">Total Bills</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stats-item text-end">
+                        <div class="stats-number" id="mobileTotalAmount">Rs 0</div>
+                        <div class="stats-label">Total Amount</div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+        <div class="mobile-actions-bar bg-light p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm" id="mobileSearchToggle">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="mobileFilterToggle">
+                        <i class="fas fa-filter"></i>
+                        <span class="badge badge-sm bg-primary ms-1" id="filterBadge" style="display: none;">0</span>
+                        </button>
+                    </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-success btn-sm" id="mobileExportBtn">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="mobileSortDropdown" data-bs-toggle="dropdown">
+                            <i class="fas fa-sort"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-sort="created_at" data-dir="desc">
+                                <i class="fas fa-clock me-2"></i>Newest First
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-sort="created_at" data-dir="asc">
+                                <i class="fas fa-history me-2"></i>Oldest First
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-sort="total_amount" data-dir="desc">
+                                <i class="fas fa-rupee-sign me-2"></i>Highest Amount
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" data-sort="total_amount" data-dir="asc">
+                                <i class="fas fa-rupee-sign me-2"></i>Lowest Amount
+                            </a></li>
+                        </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Collapsible Mobile Search Panel -->
+        <div class="mobile-search-panel  border-bottom" id="mobileSearchPanel" style="display: none;">
+            <div class="p-3">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="mobileSearchInput" placeholder="Search bills...">
+                    <button class="btn btn-primary" type="button" id="mobileSearchBtn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <input type="date" class="form-control form-control-sm" id="mobileFromDate" value="<?php echo date('Y-m-01'); ?>">
+                    </div>
+                    <div class="col-6">
+                        <input type="date" class="form-control form-control-sm" id="mobileToDate" value="<?php echo date('Y-m-d'); ?>">
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-outline-secondary btn-sm flex-fill" id="mobileQuickFilterBtn">
+                        <i class="fas fa-bolt me-1"></i>Quick Filter
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" id="mobileResetBtn">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Filter Chips -->
+        <div class="mobile-filter-chips px-3 py-2 bg-light" id="mobileFilterChips" style="display: none;">
+            <div class="d-flex gap-2 overflow-auto">
+                <span class="badge bg-primary filter-chip" data-action="today">Today</span>
+                <span class="badge bg-info filter-chip" data-action="week">This Week</span>
+                <span class="badge bg-success filter-chip" data-action="month">This Month</span>
+                <span class="badge bg-secondary filter-chip" data-action="custom">Custom Range</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop Table & Enhanced Mobile Cards -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Bills List</h5>
+            <h5 class="mb-0 d-none d-md-block">Bills List</h5>
+            <h6 class="mb-0 d-md-none">
+                <i class="fas fa-receipt me-2"></i>Your Bills
+            </h6>
             <div class="d-flex align-items-center gap-2">
                 <div class="d-none d-md-flex align-items-center me-3">
                     <label class="form-label me-2 mb-0 small">Show:</label>
@@ -100,16 +204,12 @@
                 <button class="btn btn-outline-success btn-sm d-none d-md-inline-block" id="exportBtn">
                     <i class="fas fa-download me-1"></i> Export PDF
                 </button>
-                <!-- Mobile Export Button -->
-                <button class="btn btn-outline-success btn-sm d-md-none w-100 mt-2" id="mobileExportBtn">
-                    <i class="fas fa-download me-1"></i> Export PDF
-                </button>
             </div>
         </div>
 
         <!-- Desktop Table View -->
         <div class="d-none d-md-block">
-        <div class="card-body p-0">
+        <div class="card-body p-0 width-100">
             <div class="table-responsive">
                 <table class="table table-hover mb-0" id="billsTable">
                     <thead class="table-light">
@@ -130,18 +230,55 @@
         </div>
         </div>
 
-        <!-- Mobile Card View -->
+        <!-- Enhanced Mobile Card View -->
         <div class="d-md-none">
-            <div class="card-body">
-                <div id="mobileBillsContainer" class="row g-3">
-                    <!-- Mobile bill cards will be loaded here -->
+            <!-- Mobile Bills Container with Pull to Refresh -->
+            <div class="mobile-bills-container" id="mobileBillsContainer">
+                <!-- Bills will be loaded here -->
                 </div>
-                <div id="mobileLoading" class="text-center py-4 d-none">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+
+            <!-- Enhanced Mobile Loading State -->
+            <div id="mobileLoading" class="text-center py-5 d-none">
+                <div class="mobile-loading-animation">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <div class="mt-2 text-muted small">Loading bills...</div>
+                    <div class="loading-text">
+                        <h6 class="text-primary mb-1">Loading Bills</h6>
+                        <div class="progress" style="height: 4px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 100%"></div>
+                        </div>
                 </div>
+                </div>
+            </div>
+
+            <!-- Mobile Empty State -->
+            <div id="mobileEmptyState" class="text-center py-5 d-none">
+                <div class="empty-state-icon mb-4">
+                    <i class="fas fa-receipt fa-4x text-muted"></i>
+                </div>
+                <h5 class="text-muted mb-2">No Bills Found</h5>
+                <p class="text-muted small mb-4">Start by creating your first bill</p>
+                <a href="<?php echo base_url('billing/create'); ?>" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus me-2"></i>Create New Bill
+                </a>
+            </div>
+
+            <!-- Mobile Pagination -->
+            <div class="mobile-pagination-container d-none" id="mobilePaginationContainer">
+                <div class="d-flex justify-content-center p-3 bg-light">
+                    <nav aria-label="Mobile pagination">
+                        <ul class="pagination pagination-sm mb-0" id="mobilePagination">
+                            <!-- Mobile pagination will be generated here -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Pull to Refresh Indicator -->
+            <div class="pull-to-refresh-indicator text-center py-2 d-none" id="pullToRefreshIndicator">
+                <i class="fas fa-arrow-down text-muted me-2"></i>
+                <span class="text-muted small">Pull to refresh</span>
             </div>
         </div>
 
@@ -255,8 +392,451 @@
 </div>
 
 <style>
-/* Mobile Bill Cards */
+/* Complete Mobile UX Overhaul */
+
+/* Mobile Header Styles */
 @media (max-width: 767.98px) {
+    .mobile-header-sticky {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .mobile-quick-stats {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .stats-item {
+        text-align: center;
+    }
+
+    .stats-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #20c997;
+        line-height: 1.2;
+    }
+
+    .stats-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .mobile-actions-bar {
+        border-top: 1px solid #dee2e6;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    /* Enhanced Mobile Bill Cards */
+    .mobile-bill-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 16px;
+        border: none;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .mobile-bill-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .mobile-bill-card.pressed {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+
+    .bill-card-header {
+        background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+        color: white;
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .bill-number-large {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .bill-amount-large {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .bill-card-body {
+        padding: 16px;
+    }
+
+    .bill-customer-info {
+        margin-bottom: 12px;
+    }
+
+    .customer-name-mobile {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 4px;
+    }
+
+    .customer-phone-mobile {
+        font-size: 0.85rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .bill-meta-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .bill-date-mobile {
+        font-size: 0.8rem;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .bill-items-count {
+        background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        color: #495057;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .bill-card-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .bill-action-btn {
+        padding: 10px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .bill-action-btn.view {
+        background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+        color: white;
+    }
+
+    .bill-action-btn.edit {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        color: white;
+    }
+
+    .bill-action-btn.pdf {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+
+    .bill-action-btn.delete {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        color: white;
+    }
+
+    .bill-action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .bill-action-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Mobile Search Panel */
+    .mobile-search-panel {
+        animation: slideDown 0.3s ease-out;
+    }
+
+    .mobile-filter-chips {
+        animation: slideUp 0.3s ease-out;
+    }
+
+    /* Filter Chips */
+    .filter-chip {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        font-size: 0.75rem;
+        padding: 6px 12px;
+    }
+
+    .filter-chip:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .filter-chip.active {
+        transform: scale(1.05);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Mobile Loading Animation */
+    .mobile-loading-animation {
+        animation: pulse 2s infinite;
+    }
+
+    .loading-text {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    /* Pull to Refresh */
+    .pull-to-refresh-indicator {
+        animation: bounce 1s infinite;
+    }
+
+    /* Mobile Pagination */
+    .mobile-pagination-container {
+        border-top: 1px solid #dee2e6;
+        background: #f8f9fa;
+    }
+
+    /* Enhanced Button Styles for Mobile */
+    .btn {
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .btn:active {
+        transform: scale(0.98) !important;
+    }
+
+    /* Form Controls for Mobile */
+    .form-control {
+        border-radius: 12px !important;
+        border: 2px solid #e9ecef !important;
+        font-size: 1rem !important;
+        padding: 12px 16px !important;
+    }
+
+    .form-control:focus {
+        border-color: #20c997 !important;
+        box-shadow: 0 0 0 0.2rem rgba(32, 201, 151, 0.25) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Empty State */
+    .empty-state-icon {
+        opacity: 0.6;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    /* Animations */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.7;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateY(0);
+        }
+        40% {
+            transform: translateY(-4px);
+        }
+        60% {
+            transform: translateY(-2px);
+        }
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Mobile Scroll Improvements */
+    .mobile-bills-container {
+        width: 100%;
+        padding: 16px;
+        min-height: calc(100vh - 200px);
+    }
+
+    /* Touch Feedback */
+    .touch-feedback {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .touch-feedback:active::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.6);
+        transform: translate(-50%, -50%);
+        animation: ripple 0.6s linear;
+    }
+
+    @keyframes ripple {
+        to {
+            width: 300px;
+            height: 300px;
+            opacity: 0;
+        }
+    }
+
+    /* Floating Action Button */
+    .mobile-fab {
+        position: fixed;
+        bottom: 100px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(32, 201, 151, 0.4);
+        z-index: 1030;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+    }
+
+    .mobile-fab:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(32, 201, 151, 0.6);
+        color: white;
+        text-decoration: none;
+    }
+
+    .mobile-fab:active {
+        transform: scale(0.95);
+    }
+
+    /* Mobile Specific Improvements */
+    body {
+        padding-bottom: 120px; /* Space for mobile navigation and FAB */
+    }
+
+    .container-fluid {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    /* Enhanced Mobile Layout */
+    .mobile-actions-bar .btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    .mobile-actions-bar .btn i {
+        font-size: 1rem;
+    }
+
+    /* Mobile Search Panel Enhancements */
+    .mobile-search-panel .form-control {
+        margin-bottom: 8px;
+    }
+
+    /* Active States */
+    #mobileSearchToggle.active {
+        background-color: #20c997 !important;
+        border-color: #20c997 !important;
+    }
+
+    #mobileFilterToggle.active {
+        background-color: #20c997 !important;
+        border-color: #20c997 !important;
+    }
+
+    /* Mobile Modal Improvements */
+    .modal-content {
+        border-radius: 16px;
+        border: none;
+        margin: 16px;
+    }
+
+    .modal-header {
+        border-radius: 16px 16px 0 0;
+        padding: 20px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 20px;
+        border-radius: 0 0 16px 16px;
+    }
     .bill-card {
         border: 1px solid #dee2e6;
         border-radius: 12px;
@@ -742,7 +1322,6 @@
     }
 
     .table td, .table th {
-        padding: 0.5rem 0.25rem;
         vertical-align: middle;
     }
 
@@ -842,11 +1421,245 @@ $(document).ready(function() {
     let sortField = 'created_at';
     let sortDirection = 'desc';
     
-    // Load initial data
-    console.log('Loading bills page...');
+    // Mobile UX Variables
+    let isSearchPanelOpen = false;
+    let isFilterPanelOpen = false;
+    let pullToRefreshEnabled = false;
+
+    // Load initial data with enhanced mobile UX
+    console.log('Loading bills page with enhanced mobile UX...');
+
+    // Initialize mobile features
+    initializeMobileUX();
     
     // Use fallback initially, AJAX for filtering
     loadBillsFallback();
+
+    function initializeMobileUX() {
+        // Mobile Search Toggle
+        $('#mobileSearchToggle').click(function() {
+            toggleMobileSearch();
+        });
+
+        // Mobile Filter Toggle
+        $('#mobileFilterToggle').click(function() {
+            toggleMobileFilters();
+        });
+
+        // Mobile Search Button
+        $('#mobileSearchBtn').click(function() {
+            performMobileSearch();
+        });
+
+        // Mobile Quick Filter
+        $('#mobileQuickFilterBtn').click(function() {
+            applyMobileQuickFilter();
+        });
+
+        // Mobile Reset
+        $('#mobileResetBtn').click(function() {
+            resetMobileFilters();
+        });
+
+        // Filter Chips
+        $('.filter-chip').click(function() {
+            applyFilterChip($(this));
+        });
+
+        // Mobile Sort Dropdown
+        $('#mobileSortDropdown .dropdown-item').click(function() {
+            applyMobileSort($(this));
+        });
+
+        // Pull to Refresh for Mobile
+        initializePullToRefresh();
+
+        // Enhanced touch feedback
+        $(document).on('touchstart', '.mobile-bill-card', function() {
+            $(this).addClass('pressed');
+        });
+
+        $(document).on('touchend', '.mobile-bill-card', function() {
+            $(this).removeClass('pressed');
+        });
+    }
+
+    function toggleMobileSearch() {
+        if (isSearchPanelOpen) {
+            $('#mobileSearchPanel').slideUp(300);
+            $('#mobileSearchToggle').removeClass('active');
+            isSearchPanelOpen = false;
+        } else {
+            $('#mobileSearchPanel').slideDown(300);
+            $('#mobileSearchToggle').addClass('active');
+            // Close filter panel if open
+            if (isFilterPanelOpen) {
+                toggleMobileFilters();
+            }
+            isSearchPanelOpen = true;
+        }
+    }
+
+    function toggleMobileFilters() {
+        if (isFilterPanelOpen) {
+            $('#mobileFilterChips').slideUp(300);
+            $('#mobileFilterToggle').removeClass('active');
+            isFilterPanelOpen = false;
+        } else {
+            $('#mobileFilterChips').slideDown(300);
+            $('#mobileFilterToggle').addClass('active');
+            // Close search panel if open
+            if (isSearchPanelOpen) {
+                toggleMobileSearch();
+            }
+            isFilterPanelOpen = true;
+        }
+    }
+
+    function performMobileSearch() {
+        let searchTerm = $('#mobileSearchInput').val();
+        let fromDate = $('#mobileFromDate').val();
+        let toDate = $('#mobileToDate').val();
+
+        $('#searchInput').val(searchTerm);
+        $('#fromDate').val(fromDate);
+        $('#toDate').val(toDate);
+
+        currentPage = 1;
+        loadBills();
+
+        // Close search panel
+        toggleMobileSearch();
+
+        toastr.success('Search applied successfully');
+    }
+
+    function applyMobileQuickFilter() {
+        let fromDate = $('#mobileFromDate').val();
+        let toDate = $('#mobileToDate').val();
+
+        $('#fromDate').val(fromDate);
+        $('#toDate').val(toDate);
+
+        currentPage = 1;
+        loadBills();
+
+        toggleMobileSearch();
+        toastr.info('Quick filter applied');
+    }
+
+    function resetMobileFilters() {
+        $('#mobileSearchInput').val('');
+        $('#mobileFromDate').val('<?php echo date('Y-m-01'); ?>');
+        $('#mobileToDate').val('<?php echo date('Y-m-d'); ?>');
+
+        $('#searchInput').val('');
+        $('#fromDate').val('<?php echo date('Y-m-01'); ?>');
+        $('#toDate').val('<?php echo date('Y-m-d'); ?>');
+
+        currentPage = 1;
+        loadBills();
+
+        toggleMobileSearch();
+        toastr.success('Filters reset');
+    }
+
+    function applyFilterChip($chip) {
+        let action = $chip.data('action');
+        $('.filter-chip').removeClass('active');
+
+        switch(action) {
+            case 'today':
+                let today = new Date().toISOString().split('T')[0];
+                $('#fromDate').val(today);
+                $('#toDate').val(today);
+                $('#mobileFromDate').val(today);
+                $('#mobileToDate').val(today);
+                break;
+            case 'week':
+                let weekStart = new Date();
+                weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+                let weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+                $('#fromDate').val(weekStart.toISOString().split('T')[0]);
+                $('#toDate').val(weekEnd.toISOString().split('T')[0]);
+                $('#mobileFromDate').val(weekStart.toISOString().split('T')[0]);
+                $('#mobileToDate').val(weekEnd.toISOString().split('T')[0]);
+                break;
+            case 'month':
+                let monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+                let monthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+                $('#fromDate').val(monthStart.toISOString().split('T')[0]);
+                $('#toDate').val(monthEnd.toISOString().split('T')[0]);
+                $('#mobileFromDate').val(monthStart.toISOString().split('T')[0]);
+                $('#mobileToDate').val(monthEnd.toISOString().split('T')[0]);
+                break;
+            case 'custom':
+                // Open custom range modal
+                $('#customRangeModal').modal('show');
+                return;
+        }
+
+        $chip.addClass('active');
+        currentPage = 1;
+        loadBills();
+
+        toastr.info('Filter applied: ' + $chip.text());
+    }
+
+    function applyMobileSort($item) {
+        let sortBy = $item.data('sort');
+        let direction = $item.data('dir');
+
+        sortField = sortBy;
+        sortDirection = direction;
+
+        currentPage = 1;
+        loadBills();
+
+        // Update dropdown text
+        $('#mobileSortDropdown .btn').html('<i class="fas fa-sort"></i> ' + $item.text());
+
+        toastr.info('Sorted by: ' + $item.text());
+    }
+
+    function initializePullToRefresh() {
+        let startY = 0;
+        let currentY = 0;
+        let isPulling = false;
+
+        $(document).on('touchstart', '.mobile-bills-container', function(e) {
+            if ($(window).scrollTop() === 0) {
+                startY = e.touches[0].clientY;
+                pullToRefreshEnabled = true;
+            }
+        });
+
+        $(document).on('touchmove', '.mobile-bills-container', function(e) {
+            if (pullToRefreshEnabled && $(window).scrollTop() === 0) {
+                currentY = e.touches[0].clientY;
+                let pullDistance = currentY - startY;
+
+                if (pullDistance > 50) {
+                    e.preventDefault();
+                    $('#pullToRefreshIndicator').show();
+                    isPulling = true;
+                }
+            }
+        });
+
+        $(document).on('touchend', '.mobile-bills-container', function(e) {
+            if (isPulling) {
+                $('#pullToRefreshIndicator').hide();
+                // Refresh the bills
+                currentPage = 1;
+                loadBills();
+                toastr.info('Refreshing bills...');
+                isPulling = false;
+            }
+            pullToRefreshEnabled = false;
+        });
+    }
     
     // Search functionality
     $('#searchBtn, #filterBtn').click(function() {
@@ -1169,49 +1982,50 @@ $(document).ready(function() {
                     </tr>
                 `;
 
-                // Mobile Card
+                // Enhanced Mobile Card
                 mobileHtml += `
-                    <div class="col-12">
-                        <div class="card bill-card h-100">
-                            <div class="card-body p-3">
-                                <div class="row align-items-center">
-                                    <div class="col-8">
-                                        <div class="bill-number mb-1">
-                                            <strong class="text-primary">#${bill.bill_number}</strong>
+                    <div class="mobile-bill-card touch-feedback" data-bill-id="${bill.id}">
+                        <div class="bill-card-header">
+                            <h6 class="bill-number-large">#${bill.bill_number}</h6>
+                            <h6 class="bill-amount-large"><?php echo $settings['currency_symbol']; ?> ${parseFloat(bill.total_amount).toFixed(2)}</h6>
                                         </div>
-                                        <div class="customer-info mb-2">
-                                            <div class="customer-name fw-medium">${customerName}</div>
-                                            ${customerPhone ? `<small class="text-muted"><i class="fas fa-phone me-1"></i>${customerPhone}</small>` : ''}
+
+                        <div class="bill-card-body">
+                            <div class="bill-customer-info">
+                                <div class="customer-name-mobile">
+                                    <i class="fas fa-user me-2 text-muted"></i>${customerName}
                                         </div>
-                                        <div class="bill-date small text-muted">
-                                            <i class="fas fa-calendar me-1"></i>${formatDate(bill.created_at)}
+                                ${customerPhone ? `<div class="customer-phone-mobile">
+                                    <i class="fas fa-phone"></i> ${customerPhone}
+                                </div>` : ''}
                                         </div>
-                                        <div class="bill-amount mb-2 mt-2">
-                                            <div class="fw-bold text-success fs-6"><?php echo $settings['currency_symbol']; ?> ${parseFloat(bill.total_amount).toFixed(2)}</div>
-                                            <small class="text-muted">${itemsCount} items</small>
+
+                            <div class="bill-meta-info">
+                                <div class="bill-date-mobile">
+                                    <i class="fas fa-calendar-alt"></i> ${new Date(bill.created_at).toLocaleDateString('en-GB')}
                                         </div>
-                                    </div>
-                                  
-                                </div>
-                                <div class="bill-actions mt-3 pt-2 border-top">
-                                    <div class="row g-1">
-                                        <div class="col-4">
-                                            <a href="<?php echo base_url('billing/view/'); ?>${bill.id}" class="btn btn-primary btn-sm w-100" style="background-color: #20c997;"    >
-                                                <i class="fas fa-eye me-1"></i>View
-                                            </a>
-                                        </div>
-                                        <div class="col-4">
-                                            <a href="<?php echo base_url('billing/edit/'); ?>${bill.id}" class="btn btn-outline-secondary btn-sm w-100" style="background-color: #20c997;"   >
-                                                <i class="fas fa-edit me-1"></i>Edit
-                                            </a>
-                                        </div>
-                                        <div class="col-4">
-                                            <a href="<?php echo base_url('billing/pdf/'); ?>${bill.id}" class="btn btn-outline-success btn-sm w-100" target="_blank" style="background-color: #20c997;">
-                                                <i class="fas fa-download me-1"></i>PDF
-                                            </a>
-                                        </div>
+                                <div class="bill-items-count">
+                                    <i class="fas fa-box me-1"></i>${itemsCount}
                                     </div>
                                 </div>
+
+                            <div class="bill-card-actions">
+                                <a href="<?php echo base_url('billing/view/'); ?>${bill.id}" class="bill-action-btn view">
+                                    <i class="fas fa-eye"></i>
+                                    <span>View</span>
+                                </a>
+                                <a href="<?php echo base_url('billing/edit/'); ?>${bill.id}" class="bill-action-btn edit">
+                                    <i class="fas fa-edit"></i>
+                                    <span>Edit</span>
+                                </a>
+                                <a href="<?php echo base_url('billing/pdf/'); ?>${bill.id}" class="bill-action-btn pdf" target="_blank">
+                                    <i class="fas fa-download"></i>
+                                    <span>PDF</span>
+                                </a>
+                                <a href="<?php echo base_url('billing/delete/'); ?>${bill.id}" class="bill-action-btn delete delete-bill" data-bill="${bill.bill_number}">
+                                    <i class="fas fa-trash"></i>
+                                    <span>Delete</span>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -1221,6 +2035,9 @@ $(document).ready(function() {
 
         $('#billsTableBody').html(tableHtml);
         $('#mobileBillsContainer').html(mobileHtml);
+
+        // Update mobile stats
+        updateMobileStats(bills);
     }
     
     function renderPagination(pagination) {
@@ -1252,29 +2069,40 @@ $(document).ready(function() {
         
         $('#pagination').html(html);
 
-        // Mobile pagination (simplified)
+        // Enhanced Mobile pagination
         let mobileHtml = '';
 
         if (pagination.total_pages > 1) {
             // Previous button
-            mobileHtml += `<button class="btn btn-outline-primary btn-sm ${pagination.current_page <= 1 ? 'disabled' : ''}"
-                            data-page="${pagination.current_page - 1}" ${pagination.current_page <= 1 ? 'disabled' : ''}>
+            mobileHtml += `<li class="page-item ${pagination.current_page <= 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${pagination.current_page - 1}" ${pagination.current_page <= 1 ? 'tabindex="-1" aria-disabled="true"' : ''}>
                 <i class="fas fa-chevron-left"></i>
-            </button>`;
+                </a>
+            </li>`;
 
-            // Current page indicator
-            mobileHtml += `<span class="px-3 py-1 bg-primary text-white rounded small fw-medium">
-                ${pagination.current_page} of ${pagination.total_pages}
-            </span>`;
+            // Page info
+            mobileHtml += `<li class="page-item disabled">
+                <span class="page-link">
+                    <small class="text-muted">${pagination.current_page} of ${pagination.total_pages}</small>
+                </span>
+            </li>`;
 
             // Next button
-            mobileHtml += `<button class="btn btn-outline-primary btn-sm ${pagination.current_page >= pagination.total_pages ? 'disabled' : ''}"
-                            data-page="${pagination.current_page + 1}" ${pagination.current_page >= pagination.total_pages ? 'disabled' : ''}>
+            mobileHtml += `<li class="page-item ${pagination.current_page >= pagination.total_pages ? 'disabled' : ''}">
+                <a class="page-link" href="#" data-page="${pagination.current_page + 1}" ${pagination.current_page >= pagination.total_pages ? 'tabindex="-1" aria-disabled="true"' : ''}>
                 <i class="fas fa-chevron-right"></i>
-            </button>`;
+                </a>
+            </li>`;
         }
 
         $('#mobilePagination').html(mobileHtml);
+
+        // Show/hide pagination container
+        if (pagination.total_pages > 1) {
+            $('#mobilePaginationContainer').removeClass('d-none');
+        } else {
+            $('#mobilePaginationContainer').addClass('d-none');
+        }
 
         // Add click handlers for mobile pagination
         $('#mobilePagination .btn').off('click').on('click', function(e) {
@@ -1293,6 +2121,25 @@ $(document).ready(function() {
         $('#showingFrom').text(pagination.showing_from);
         $('#showingTo').text(pagination.showing_to);
         $('#totalRecords').text(pagination.total_records);
+
+        // Update mobile stats if available
+        if (pagination.total_amount) {
+            $('#mobileTotalBills').text(pagination.total_records || 0);
+            $('#mobileTotalAmount').text('<?php echo $settings['currency_symbol']; ?> ' + (pagination.total_amount || '0'));
+        }
+    }
+
+    // Mobile-specific enhancements
+    function updateMobileStats(bills) {
+        let totalBills = bills.length;
+        let totalAmount = 0;
+
+        bills.forEach(bill => {
+            totalAmount += parseFloat(bill.total_amount) || 0;
+        });
+
+        $('#mobileTotalBills').text(totalBills);
+        $('#mobileTotalAmount').text('<?php echo $settings['currency_symbol']; ?> ' + totalAmount.toFixed(2));
     }
     
     function updateSortIcons() {

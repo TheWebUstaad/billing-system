@@ -154,7 +154,7 @@
 }
 
 .stat-card.primary {
-    border-left: 5px solid #007bff;
+    border-left: 5px solid #20c997;
 }
 
 .stat-card.success {
@@ -173,8 +173,8 @@
 }
 
 .stat-card.primary .stat-icon {
-    background: rgba(0, 123, 255, 0.1);
-    color: #007bff;
+    background: rgba(32, 201, 151, 0.1);
+    color: #20c997;
 }
 
 .stat-card.success .stat-icon {
@@ -256,8 +256,8 @@
     background: #ffffff;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border-color: #007bff;
-    color: #007bff;
+    border-color: #20c997;
+    color: #20c997;
     text-decoration: none;
 }
 
@@ -265,7 +265,7 @@
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    background: #007bff;
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
     color: white;
     display: flex;
     align-items: center;
