@@ -9,9 +9,8 @@
         </div>
         <div class="d-flex gap-2">
             <!-- Mobile Create Button -->
-            <a href="<?php echo base_url('billing/create'); ?>" class="btn btn-primary btn-lg d-md-none mobile-create-btn">
-                <i class="fas fa-plus me-1"></i>
-                <span class="fw-bold">Create Bill</span>
+            <a href="<?php echo base_url('billing/create'); ?>" class="btn btn-primary d-md-none mobile-create-btn" title="نیا بل بنائیں">
+                <i class="fas fa-plus"></i>
             </a>
             <!-- Desktop Create Button -->
             <a href="<?php echo base_url('billing/create'); ?>" class="btn btn-primary d-none d-md-inline-flex align-items-center">
@@ -428,35 +427,36 @@
 
     /* Mobile Create Bill Button */
     .mobile-create-btn {
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+        background: linear-gradient(135deg, #20c997 0%, #20c997 100%) !important;
         border: none !important;
-        box-shadow: 0 4px 12px rgba(0,123,255,0.3) !important;
-        border-radius: 12px !important;
-        font-size: 0.9rem !important;
+        box-shadow: 0 3px 8px rgba(0,123,255,0.25) !important;
+        border-radius: 50px !important;
+        font-size: 0.8rem !important;
         font-weight: 600 !important;
-        padding: 0.75rem 1.25rem !important;
+        padding: 0.625rem !important;
         transition: all 0.3s ease !important;
         position: fixed !important;
-        bottom: 20px !important;
-        right: 20px !important;
-        z-index: 1050 !important;
-        min-width: 140px !important;
+        bottom: 4.5rem !important; /* Position above bottom navigation */
+        right: 15px !important;
+        z-index: 1040 !important;
+        width: 48px !important;
+        height: 48px !important;
     }
 
     .mobile-create-btn:hover {
-        transform: translateY(-3px) scale(1.05) !important;
-        box-shadow: 0 8px 20px rgba(0,123,255,0.4) !important;
+        transform: translateY(-2px) scale(1.03) !important;
+        box-shadow: 0 5px 15px rgba(0,123,255,0.35) !important;
         background: linear-gradient(135deg, #0056b3 0%, #004085 100%) !important;
     }
 
     .mobile-create-btn:active {
-        transform: translateY(-1px) scale(1.02) !important;
+        transform: translateY(0px) scale(1.01) !important;
     }
 
     .mobile-create-btn i {
-        font-size: 1rem !important;
-        margin-bottom: 2px !important;
+        font-size: 0.9rem !important;
     }
+
 
     /* Adjust body padding for fixed button */
     body {

@@ -18,6 +18,32 @@
         </div>
     </div> <!-- End of container-fluid -->
 
+    <!-- Mobile Bottom Tab Navigation -->
+    <nav class="mobile-bottom-nav d-md-none">
+        <div class="nav-container">
+            <a href="<?php echo base_url('dashboard'); ?>" class="nav-item <?php echo $this->uri->segment(1) == 'dashboard' ? 'active' : ''; ?>">
+                <i class="fa fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="<?php echo base_url('billing'); ?>" class="nav-item <?php echo $this->uri->segment(1) == 'billing' ? 'active' : ''; ?>">
+                <i class="fa fa-file-invoice-dollar"></i>
+                <span>Billing</span>
+            </a>
+            <a href="<?php echo base_url('inventory'); ?>" class="nav-item <?php echo $this->uri->segment(1) == 'inventory' ? 'active' : ''; ?>">
+                <i class="fa fa-boxes"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="<?php echo site_url('customer'); ?>" class="nav-item <?php echo $this->uri->segment(1) === 'customer' ? 'active' : ''; ?>">
+                <i class="fa fa-users"></i>
+                <span>Customers</span>
+            </a>
+            <a href="<?php echo site_url('settings'); ?>" class="nav-item <?php echo $this->uri->segment(1) === 'settings' ? 'active' : ''; ?>">
+                <i class="fa fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </nav>
+
     <script src="<?php echo base_url('assets/js/bootstrap.bundle.min.js'); ?>"></script>
 <script src="<?php echo base_url('assets/js/jquery.min.js'); ?>"></script>
 <script src="<?php echo base_url('assets/js/sweetalert2.min.js'); ?>"></script>

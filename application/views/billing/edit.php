@@ -71,7 +71,7 @@
                                             <div class="input-group">
                                                 <input type="text" class="form-control form-control-sm item-search"
                                                        name="item_name[]" value="<?php echo set_value('item_name[' . $index . ']', $item->title); ?>"
-                                                       placeholder="Type item name..." onfocus="openItemSearchModal(this)" readonly required>
+                                                       placeholder="Type item name..." onfocus="openItemSearchModal(this)" required>
                                                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
                                                     <i class="fa fa-search"></i>
                                                 </button>
@@ -103,7 +103,7 @@
                                         <td>
                                             <div class="input-group">
                                                 <input type="text" class="form-control form-control-sm item-search"
-                                                       name="item_name[]" placeholder="Type item name..." onfocus="openItemSearchModal(this)" readonly required>
+                                                       name="item_name[]" placeholder="Type item name..." onfocus="openItemSearchModal(this)" required>
                                                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
                                                     <i class="fa fa-search"></i>
                                                 </button>
@@ -143,6 +143,7 @@
                                         <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeMobileCard(this)">
                                             <i class="fa fa-trash"></i>
                                         </button>
+
                                     </div>
 
                                     <div class="mb-3">
@@ -150,7 +151,7 @@
                                         <div class="input-group">
                                             <input type="text" class="form-control item-search"
                                                    name="item_name[]" value="<?php echo set_value('item_name[' . $index . ']', $item->title); ?>"
-                                                   placeholder="Type item name..." onfocus="openItemSearchModal(this)" readonly required>
+                                                   placeholder="Type item name..." onfocus="openItemSearchModal(this)" required>
                                             <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
                                                 <i class="fa fa-search"></i>
                                             </button>
@@ -193,7 +194,7 @@
                                         <label class="form-label small fw-bold">Item Name *</label>
                                         <div class="input-group">
                                             <input type="text" class="form-control item-search"
-                                                   name="item_name[]" placeholder="Type item name..." onfocus="openItemSearchModal(this)" readonly required>
+                                                   name="item_name[]" placeholder="Type item name..." onfocus="openItemSearchModal(this)" required>
                                             <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
                                                 <i class="fa fa-search"></i>
                                             </button>
@@ -262,15 +263,41 @@
 
                     <hr>
 
-                    <button type="submit" class="btn btn-success w-100 btn-lg">
-                        <i class="fa fa-save"></i> Update Bill
-                    </button>
+                    <div class="d-none d-md-block">
+                        <button type="submit" class="btn btn-success w-100 btn-lg">
+                            <i class="fa fa-save"></i> Update Bill
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
     <?php echo form_close(); ?>
+
+    <!-- Mobile Update Button (Bottom) - Only visible on mobile -->
+    <div class="d-md-none">
+        <div class="fixed-bottom-mobile-btn">
+            <div class="container-fluid px-3 py-2">
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" form="editBillForm" class="btn btn-success w-100 shadow-sm"
+                                style="border-radius: 8px; padding: 0.75rem 1rem; font-weight: 500; font-size: 1rem;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-save me-2"></i>
+                                    <span>Update Bill</span>
+                                </div>
+                                <div class="fw-bold text-white-50" id="mobileGrandTotal" style="font-size: 0.9rem;">
+                                    <?php echo $settings['currency_symbol']; ?> <?php echo number_format($bill->total_amount, 2); ?>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Item Search Modal -->
     <div class="modal fade" id="itemSearchModal" tabindex="-1" aria-labelledby="itemSearchModalLabel" aria-hidden="true">
@@ -608,6 +635,74 @@
         font-size: 1rem;
         line-height: 1.5;
     }
+
+    /* Mobile Fixed Bottom Button */
+    .fixed-bottom-mobile-btn {
+        position: fixed;
+        bottom: 40px;
+        left: 15px;
+        right: 15px;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 10px;
+        z-index: 1020;
+        padding-bottom: env(safe-area-inset-bottom, 0);
+        box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Prevent content from being hidden behind fixed button - Mobile only */
+    @media (max-width: 767.98px) {
+        body {
+            padding-bottom: 30px;
+        }
+    }
+
+    /* Enhanced mobile button styling */
+    .fixed-bottom-mobile-btn .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .fixed-bottom-mobile-btn .btn-success:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    .fixed-bottom-mobile-btn .btn-success:active {
+        transform: translateY(0);
+        transition: all 0.1s ease;
+    }
+
+    /* Mobile total display in button */
+    #mobileGrandTotal {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: rgba(255,255,255,0.8);
+    }
+
+    /* Ensure modal appears above fixed button */
+    .modal {
+        z-index: 1030;
+    }
+
+    /* Adjust modal backdrop for mobile */
+    .modal-backdrop {
+        z-index: 1025;
+    }
+
+    /* Smooth transitions for mobile button */
+    .fixed-bottom-mobile-btn {
+        transition: transform 0.3s ease;
+    }
+
+    /* Hide mobile button when modal is open */
+    .modal-open .fixed-bottom-mobile-btn {
+        transform: translateY(100%);
+    }
 }
 
 /* Extra small screens */
@@ -706,9 +801,31 @@ $(document).ready(function() {
 
     // Initial calculation on page load
     setTimeout(() => {
+        // Calculate totals for existing items
+        $('.item-row').each(function() {
+            const quantityInput = $(this).find('.quantity')[0];
+            if (quantityInput) {
+                calculateRowTotal(quantityInput);
+            }
+        });
         calculateGrandTotal();
         updateSummary();
     }, 200);
+
+    // Add event listeners for quantity and price changes
+    $(document).on('input change', '.quantity, .unit-price', function() {
+        console.log('Quantity/Price changed, recalculating...');
+        calculateRowTotal(this);
+    });
+
+    // Add event listener for item selection from modal
+    $(document).on('itemSelected', function() {
+        console.log('Item selected, recalculating...');
+        setTimeout(() => {
+            calculateGrandTotal();
+            updateSummary();
+        }, 100);
+    });
     
 });
 
@@ -834,7 +951,7 @@ function addItemRow() {
                 <div class="input-group">
                     <input type="text" class="form-control form-control-sm item-search"
                            name="item_name[]" placeholder="Type item name..."
-                           onfocus="openItemSearchModal(this)" readonly required>
+                           onfocus="openItemSearchModal(this)" required>
                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openItemSearchModal(this.previousElementSibling)">
                         <i class="fa fa-search"></i>
                     </button>
@@ -877,7 +994,7 @@ function addItemRow() {
                     <div class="input-group">
                         <input type="text" class="form-control item-search"
                                name="item_name[]" placeholder="Type item name..."
-                               onfocus="openItemSearchModal(this)" readonly required>
+                               onfocus="openItemSearchModal(this)" required>
                         <button type="button" class="btn btn-outline-secondary" onclick="openItemSearchModal(this.previousElementSibling)">
                             <i class="fa fa-search"></i>
                         </button>
@@ -919,6 +1036,11 @@ function addItemRow() {
     // Trigger initial calculation for new row
     setTimeout(() => {
         calculateGrandTotal();
+        // Also trigger row calculation for the new row
+        const newRow = $(window).width() >= 768 ? $('#items_table_desktop tr:last .quantity')[0] : $('#items_container_mobile .mobile-item-card:last .quantity')[0];
+        if (newRow) {
+            calculateRowTotal(newRow);
+        }
     }, 50);
 }
 
@@ -1113,6 +1235,8 @@ function selectItemFromModal(id, title, price) {
     setTimeout(() => {
         calculateGrandTotal();
         updateSummary();
+        // Trigger custom event for additional listeners
+        $(document).trigger('itemSelected');
     }, 100);
 }
 
@@ -1160,7 +1284,14 @@ function calculateRowTotal(element) {
 
     console.log('Calculation values:', { qty, price, total });
 
+    // Update the row total field
     itemContainer.find('.row-total').val(total.toFixed(2));
+
+    // Also update display for mobile cards
+    if (itemContainer.hasClass('mobile-item-card')) {
+        itemContainer.find('.row-total').text(total.toFixed(2));
+    }
+
     calculateGrandTotal();
     updateSummary();
 }
@@ -1175,15 +1306,22 @@ function calculateGrandTotal() {
         const price = parseFloat($(this).find('.unit-price').val()) || 0;
         const itemTotal = qty * price;
 
-        console.log(`Item ${index + 1}: qty=${qty}, price=${price}, itemTotal=${itemTotal}`);
+        // Only count items that have both quantity and price > 0
+        if (qty > 0 && price > 0) {
+            total += itemTotal;
+            itemCount++;
+        }
 
-        total += itemTotal;
-        itemCount++;
+        console.log(`Item ${index + 1}: qty=${qty}, price=${price}, itemTotal=${itemTotal}, valid=${qty > 0 && price > 0}`);
     });
 
-    console.log(`Grand total calculation: ${itemCount} items, total=${total}`);
+    console.log(`Grand total calculation: ${itemCount} valid items, total=${total}`);
 
-    $('#grandTotal').text(currency + ' ' + total.toFixed(2));
+    // Update the grand total display
+    $('#grandTotal').html('<strong>' + currency + ' ' + total.toFixed(2) + '</strong>');
+
+    // Update mobile bottom button total as well
+    $('#mobileGrandTotal').text(currency + ' ' + total.toFixed(2));
 
     console.log('Grand total updated to:', total.toFixed(2));
 }
@@ -1320,4 +1458,5 @@ function forceRecalculate() {
     calculateGrandTotal();
     updateSummary();
 }
+</script> 
 </script> 

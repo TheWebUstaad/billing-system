@@ -250,6 +250,90 @@
             height: 38px;
             padding: 5px;
         }
+
+        /* Mobile Bottom Tab Navigation */
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1030;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .mobile-bottom-nav .nav-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .mobile-bottom-nav .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #6c757d;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            min-width: 60px;
+            position: relative;
+        }
+
+        .mobile-bottom-nav .nav-item:hover {
+            color: #2c3e50;
+            background-color: rgba(44, 62, 80, 0.05);
+        }
+
+        .mobile-bottom-nav .nav-item.active {
+            color: #2c3e50;
+        }
+
+        .mobile-bottom-nav .nav-item.active::after {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background: #2c3e50;
+            border-radius: 2px;
+        }
+
+        .mobile-bottom-nav .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .mobile-bottom-nav .nav-item span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Adjust main content for mobile bottom nav */
+        @media (max-width: 767.98px) {
+            .main-content {
+                padding-bottom: 5rem;
+            }
+
+            .mobile-bottom-nav .nav-item {
+                padding: 0.75rem 0.25rem;
+            }
+
+            .mobile-bottom-nav .nav-item i {
+                font-size: 1.1rem;
+            }
+
+            .mobile-bottom-nav .nav-item span {
+                font-size: 0.7rem;
+            }
+        }
     </style>
 </head>
 <body>
