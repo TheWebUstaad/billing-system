@@ -34,6 +34,10 @@ class Customer_model extends CI_Model {
     }
 
     public function get_customer_by_phone($phone) {
+        // Return null immediately if phone is empty to prevent incorrect matches
+        if (empty($phone)) {
+            return null;
+        }
         return $this->db->get_where('customers', ['phone' => $phone])->row();
     }
 

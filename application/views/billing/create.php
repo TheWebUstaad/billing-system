@@ -21,6 +21,7 @@
                             <label class="form-label">کسٹمر کا نام*</label>
                             <input type="text" class="form-control" id="customer_name" name="customer_name" required
                                    placeholder="کسٹمر کا نام درج کریں...">
+                            <input type="hidden" id="customer_id" name="customer_id">
                             <div id="customer_list" class="list-group mt-1" style="display: none; position: absolute; z-index: 1000; width: 90%;"></div>
                         </div>
                         </div>
@@ -196,7 +197,10 @@ $(document).ready(function() {
 
         // Add visual feedback for form completion
         $('.form-control').on('blur', function() {
-            if ($(this).val().trim()) {
+            // Special handling for phone field - it's optional so always valid
+            if ($(this).attr('id') === 'customer_phone') {
+                $(this).addClass('is-valid');
+            } else if ($(this).val().trim()) {
                 $(this).addClass('is-valid');
             } else {
                 $(this).removeClass('is-valid');
@@ -242,6 +246,9 @@ $('#customer_name').on('input', function() {
     const query = $(this).val().trim();
     console.log('Customer input:', query);
 
+    // Clear customer_id when user starts typing (indicating manual entry)
+    $('#customer_id').val('');
+
     if (query.length >= 2) {
         customerTimeout = setTimeout(() => {
             searchCustomers(query);
@@ -281,7 +288,7 @@ function showCustomers(customers) {
 
             list.append(`
                 <a href="#" class="list-group-item list-group-item-action customer-suggestion-item"
-                   onclick="selectCustomer('${escapedName}', '${escapedPhone}')">
+                   onclick="selectCustomer('${customer.id}', '${escapedName}', '${escapedPhone}')">
                     <div class="d-flex justify-content-between">
                         <strong>${customer.name}</strong>
                         <small class="text-muted">${customer.phone || 'No phone'}</small>
@@ -306,23 +313,20 @@ function showCustomers(customers) {
     }
 }
 
-function selectCustomer(name, phone) {
+function selectCustomer(id, name, phone) {
     $('#customer_name').val(name);
     $('#customer_phone').val(phone);
+    $('#customer_id').val(id); // Set the selected customer ID
     $('#customer_list').hide();
 
-    // Add visual feedback for customer selection
+    // Add visual feedback for customer selection - phone is optional so always mark as valid
     $('#customer_name').addClass('customer-selected is-valid');
-    if (phone) {
-        $('#customer_phone').addClass('customer-selected is-valid');
-    }
+    $('#customer_phone').addClass('customer-selected is-valid'); // Phone is optional, always valid
 
     // Add mobile-specific feedback
     if ($(window).width() < 768) {
         $('#customer_name').addClass('is-valid');
-        if (phone) {
-            $('#customer_phone').addClass('is-valid');
-        }
+        $('#customer_phone').addClass('is-valid'); // Phone is optional, always valid
     }
 
     // Trigger input events to ensure validation recognizes the values

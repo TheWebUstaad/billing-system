@@ -77,27 +77,65 @@ class Billing extends CI_Controller {
         $this->form_validation->set_rules('item_name[]', 'Items', 'required');
         $this->form_validation->set_rules('quantity[]', 'Quantities', 'required|numeric|greater_than[0]');
         $this->form_validation->set_rules('unit_price[]', 'Unit Prices', 'required|numeric|greater_than[0]');
-        
+
         if ($this->form_validation->run() == FALSE) {
             $this->create();
             return;
         }
 
         // Check if customer exists or create new one (for customer database)
+        $customer_id_input = $this->input->post('customer_id');
         $customer_phone = $this->input->post('customer_phone');
-        $customer = $this->customer_model->get_customer_by_phone($customer_phone);
-        
-        if (!$customer) {
-            $customer_data = array(
-                'name' => $this->input->post('customer_name'),
-               
-            );
-            $customer_id = $this->customer_model->add_customer($customer_data);
+
+        // First check if a customer was selected from the suggestion box
+        if (!empty($customer_id_input)) {
+            // Use the selected existing customer
+            $existing_customer = $this->customer_model->get_customer($customer_id_input);
+            if ($existing_customer) {
+                $customer_id = $existing_customer->id;
+                // Only update customer name if different - NEVER update phone number during bill creation
+                $update_data = [];
+                if ($existing_customer->name !== $this->input->post('customer_name')) {
+                    $update_data['name'] = $this->input->post('customer_name');
+                }
+                // Removed phone update logic - customer phone should not be updated during bill creation
+                if (!empty($update_data)) {
+                    $this->customer_model->update_customer($customer_id, $update_data);
+                }
+            } else {
+                // Selected customer doesn't exist anymore, create new one
+                $customer_data = array(
+                    'name' => $this->input->post('customer_name'),
+                    'phone' => !empty($customer_phone) ? $customer_phone : null
+                );
+                $customer_id = $this->customer_model->add_customer($customer_data);
+            }
         } else {
-            $customer_id = $customer->id;
-            // Update customer name if different
-            if ($customer->name !== $this->input->post('customer_name')) {
-                $this->customer_model->update_customer($customer_id, ['name' => $this->input->post('customer_name')]);
+            // No customer selected from suggestion box, use existing logic
+            // Only search for existing customer if phone is not empty
+            if (!empty($customer_phone)) {
+                $customer = $this->customer_model->get_customer_by_phone($customer_phone);
+
+                if (!$customer) {
+                    $customer_data = array(
+                        'name' => $this->input->post('customer_name'),
+                        'phone' => $customer_phone
+                    );
+                    $customer_id = $this->customer_model->add_customer($customer_data);
+                } else {
+                    $customer_id = $customer->id;
+                    // Update customer name if different
+                    if ($customer->name !== $this->input->post('customer_name')) {
+                        $this->customer_model->update_customer($customer_id, ['name' => $this->input->post('customer_name')]);
+                    }
+                }
+            } else {
+                // If phone is empty, always create a new customer
+                $customer_data = array(
+                    'name' => $this->input->post('customer_name'),
+                    'phone' => null // Explicitly set to null for empty phone
+                );
+                $customer_id = $this->customer_model->add_customer($customer_data);
             }
         }
 
@@ -251,27 +289,31 @@ class Billing extends CI_Controller {
 
     public function add_customer() {
         $response = ['success' => false, 'message' => ''];
-        
+
         $this->form_validation->set_rules('name', 'Name', 'required|trim');
-        $this->form_validation->set_rules('phone', 'Phone', 'required|trim');
-        
+        $this->form_validation->set_rules('phone', 'Phone', 'trim'); // Made phone optional
+
         if ($this->form_validation->run() == FALSE) {
             $response['message'] = validation_errors();
             echo json_encode($response);
             return;
         }
-        
-        // Check if customer with this phone already exists
-        $existing_customer = $this->customer_model->get_customer_by_phone($this->input->post('phone'));
-        if ($existing_customer) {
-            $response['message'] = 'Customer with this phone number already exists';
-            echo json_encode($response);
-            return;
+
+        $phone = $this->input->post('phone');
+
+        // Only check for existing customer if phone is not empty
+        if (!empty($phone)) {
+            $existing_customer = $this->customer_model->get_customer_by_phone($phone);
+            if ($existing_customer) {
+                $response['message'] = 'Customer with this phone number already exists';
+                echo json_encode($response);
+                return;
+            }
         }
         
         $customer_data = [
             'name' => $this->input->post('name'),
-            'phone' => $this->input->post('phone'),
+            'phone' => !empty($phone) ? $phone : null, // Set to null if empty
             'email' => $this->input->post('email'),
             'address' => $this->input->post('address')
         ];
@@ -432,20 +474,58 @@ class Billing extends CI_Controller {
         }
 
         // Check if customer exists or create new one
+        $customer_id_input = $this->input->post('customer_id');
         $customer_phone = $this->input->post('customer_phone');
-        $customer = $this->customer_model->get_customer_by_phone($customer_phone);
 
-        if (!$customer) {
-            $customer_data = array(
-                'name' => $this->input->post('customer_name'),
-                'phone' => $customer_phone
-            );
-            $customer_id = $this->customer_model->add_customer($customer_data);
+        // First check if a customer was selected from the suggestion box
+        if (!empty($customer_id_input)) {
+            // Use the selected existing customer
+            $existing_customer = $this->customer_model->get_customer($customer_id_input);
+            if ($existing_customer) {
+                $customer_id = $existing_customer->id;
+                // Only update customer name if different - NEVER update phone number during bill editing
+                $update_data = [];
+                if ($existing_customer->name !== $this->input->post('customer_name')) {
+                    $update_data['name'] = $this->input->post('customer_name');
+                }
+                // Removed phone update logic - customer phone should not be updated during bill editing
+                if (!empty($update_data)) {
+                    $this->customer_model->update_customer($customer_id, $update_data);
+                }
+            } else {
+                // Selected customer doesn't exist anymore, create new one
+                $customer_data = array(
+                    'name' => $this->input->post('customer_name'),
+                    'phone' => !empty($customer_phone) ? $customer_phone : null
+                );
+                $customer_id = $this->customer_model->add_customer($customer_data);
+            }
         } else {
-            $customer_id = $customer->id;
-            // Update customer name if different
-            if ($customer->name !== $this->input->post('customer_name')) {
-                $this->customer_model->update_customer($customer_id, ['name' => $this->input->post('customer_name')]);
+            // No customer selected from suggestion box, use existing logic
+            // Only search for existing customer if phone is not empty
+            if (!empty($customer_phone)) {
+                $customer = $this->customer_model->get_customer_by_phone($customer_phone);
+
+                if (!$customer) {
+                    $customer_data = array(
+                        'name' => $this->input->post('customer_name'),
+                        'phone' => $customer_phone
+                    );
+                    $customer_id = $this->customer_model->add_customer($customer_data);
+                } else {
+                    $customer_id = $customer->id;
+                    // Update customer name if different
+                    if ($customer->name !== $this->input->post('customer_name')) {
+                        $this->customer_model->update_customer($customer_id, ['name' => $this->input->post('customer_name')]);
+                    }
+                }
+            } else {
+                // If phone is empty, always create a new customer
+                $customer_data = array(
+                    'name' => $this->input->post('customer_name'),
+                    'phone' => null // Explicitly set to null for empty phone
+                );
+                $customer_id = $this->customer_model->add_customer($customer_data);
             }
         }
 
